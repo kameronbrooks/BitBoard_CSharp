@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitBoard_CSharp", "BitBoard_CSharp\BitBoard_CSharp.csproj", "{0600EFAA-8A2C-4452-A070-0962B6D86D5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitBoardCore", "BitBoardCore\BitBoardCore.csproj", "{ECD5B4A3-44CD-4047-A65B-568528A3355B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0600EFAA-8A2C-4452-A070-0962B6D86D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0600EFAA-8A2C-4452-A070-0962B6D86D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0600EFAA-8A2C-4452-A070-0962B6D86D5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0600EFAA-8A2C-4452-A070-0962B6D86D5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECD5B4A3-44CD-4047-A65B-568528A3355B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECD5B4A3-44CD-4047-A65B-568528A3355B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECD5B4A3-44CD-4047-A65B-568528A3355B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECD5B4A3-44CD-4047-A65B-568528A3355B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {154DDFBF-9E6E-4033-A9FA-45D87034644E}
+	EndGlobalSection
+EndGlobal
