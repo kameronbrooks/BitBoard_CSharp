@@ -39,6 +39,8 @@
             Text = "BitBoard";
             Load += Form1_Load;
             Paint += Form1_Paint;
+            MouseDown += Form1_MouseDown;
+            MouseMove += Form1_MouseMove;
             ResumeLayout(false);
         }
 

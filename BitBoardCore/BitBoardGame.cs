@@ -27,12 +27,17 @@ namespace BitBoardCore
         uint[] _boards;
         int _currentTurn;
 
+        int[] _hoverCellIndex;
+
         public BitBoardGame()
         {
             _boards = new uint[2];
             _currentTurn = 0;
+            _hoverCellIndex = new int[2];
             
         }
+
+        
 
         public void InitializeBoard()
         {
@@ -93,6 +98,8 @@ namespace BitBoardCore
             RenderBoard(graphics);
 
             RenderPieces(graphics);
+
+            RenderUI(graphics);
             
 
             //graphics.FillRectangle(darkBrush, new Rectangle() { X = 0, Y = 0, Height = CELL_SIZE, Width = CELL_SIZE});
@@ -146,6 +153,39 @@ namespace BitBoardCore
                     RenderPiece(graphics, blackBrush, x, y);
                 }
             }
+        }
+
+        protected void RenderUI(System.Drawing.Graphics graphics)
+        {
+            if (_hoverCellIndex[0]<0 || _hoverCellIndex[1]<0)
+            {
+                return;
+            }
+            Pen pen = new Pen(Color.GreenYellow, 5);
+            graphics.DrawRectangle(pen, new Rectangle() { X = CELL_SIZE * _hoverCellIndex[0], Y = CELL_SIZE * (7-_hoverCellIndex[1]), Height = CELL_SIZE, Width = CELL_SIZE });
+        }
+
+        public void OnMouseDown(int x, int y)
+        {
+
+        }
+
+        public void SetMousePosition(int x, int y)
+        {
+            _hoverCellIndex[0] = x / CELL_SIZE;
+            _hoverCellIndex[1] = 7-(y / CELL_SIZE);
+
+            Debug.WriteLine($"{_hoverCellIndex[0]}, {_hoverCellIndex[1]}");
+
+            if (_hoverCellIndex[0] > BOARD_COLUMNS-1)
+            {
+                _hoverCellIndex[0] = -1;
+            }
+            if (_hoverCellIndex[1] > BOARD_ROWS - 1)
+            {
+                _hoverCellIndex[1] = -1;
+            }
+
         }
     }
 }
