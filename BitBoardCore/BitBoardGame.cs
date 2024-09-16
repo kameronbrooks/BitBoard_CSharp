@@ -28,12 +28,34 @@ namespace BitBoardCore
         int _currentTurn;
 
         int[] _hoverCellIndex;
+        int[] _selectedCellIndex;
+
+        public delegate void BoardChangeCallback(uint player1, uint player2);
+        public BoardChangeCallback onBoardChange;
+
+        public uint player1BitBoard
+        {
+            get
+            {
+                return _boards[0];
+            }
+        }
+
+        public uint player2BitBoard
+        {
+            get
+            {
+                return _boards[1];
+            }
+        }
 
         public BitBoardGame()
         {
             _boards = new uint[2];
             _currentTurn = 0;
             _hoverCellIndex = new int[2];
+            _selectedCellIndex = new int[2];
+            onBoardChange = null;
             
         }
 
@@ -43,6 +65,8 @@ namespace BitBoardCore
         {
             _boards[PLAYER_1] = INITIAL_PLAYER_1_STATE;
             _boards[PLAYER_2] = INITIAL_PLAYER_2_STATE;
+
+            UpdateUI();
         }
 
         public int GetOtherPlayerID(int playerID)
@@ -63,6 +87,8 @@ namespace BitBoardCore
                 // If so, capture it
                 CapturePiece(otherPlayerID, toBit);
             }
+
+            UpdateUI();
         }
 
         public bool IsLegalMove(int playerID, int fromBit, int toBit)
@@ -88,6 +114,14 @@ namespace BitBoardCore
         public void UpdateGameState()
         {
 
+        }
+
+        public void UpdateUI()
+        {
+            if (onBoardChange != null)
+            {
+                onBoardChange(_boards[0], _boards[1]);
+            }
         }
 
         public void Render(System.Drawing.Graphics graphics)
@@ -174,8 +208,6 @@ namespace BitBoardCore
         {
             _hoverCellIndex[0] = x / CELL_SIZE;
             _hoverCellIndex[1] = 7-(y / CELL_SIZE);
-
-            Debug.WriteLine($"{_hoverCellIndex[0]}, {_hoverCellIndex[1]}");
 
             if (_hoverCellIndex[0] > BOARD_COLUMNS-1)
             {

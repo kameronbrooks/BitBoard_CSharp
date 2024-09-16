@@ -223,9 +223,13 @@ namespace BitBoardCore
         {
             StringBuilder builder = new StringBuilder();
 
-            for(int i = sizeof(uint)-1; i >= 0; i--)
+            for(int i = (sizeof(uint)*8)-1; i >= 0; i--)
             {
                 builder.Append(CheckBit(val, i) == 1u ? '1' : '0');
+                if((i%8)==0)
+                {
+                    builder.Append(' ');
+                }
             }
 
             return builder.ToString();
