@@ -30,18 +30,21 @@
         {
             doubleBufferedPanel1 = new DoubleBufferedPanel();
             panel1 = new Panel();
+            label3 = new Label();
+            hoverBitMaskDataLabel = new Label();
             TurnLabel = new Label();
             turnDataLabel = new Label();
             label1 = new Label();
             label2 = new Label();
             panel2 = new Panel();
-            label4 = new Label();
-            player1BinaryDataLabel = new Label();
-            player1HexDataLabel = new Label();
+            label9 = new Label();
             player2HexDataLabel = new Label();
             player2BinaryDataLabel = new Label();
             label8 = new Label();
-            label9 = new Label();
+            player1HexDataLabel = new Label();
+            player1BinaryDataLabel = new Label();
+            label4 = new Label();
+            panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
@@ -52,16 +55,41 @@
             doubleBufferedPanel1.Size = new Size(480, 480);
             doubleBufferedPanel1.TabIndex = 1;
             doubleBufferedPanel1.Paint += doubleBufferedPanel1_Paint;
+            doubleBufferedPanel1.MouseClick += doubleBufferedPanel1_MouseClick;
             doubleBufferedPanel1.MouseMove += doubleBufferedPanel1_MouseMove;
             // 
             // panel1
             // 
-            panel1.BackColor = SystemColors.ControlLight;
+            panel1.BackColor = Color.Black;
             panel1.BorderStyle = BorderStyle.FixedSingle;
-            panel1.Location = new Point(0, 481);
+            panel1.Controls.Add(label3);
+            panel1.Controls.Add(hoverBitMaskDataLabel);
+            panel1.Location = new Point(5, 481);
             panel1.Name = "panel1";
-            panel1.Size = new Size(801, 40);
+            panel1.Size = new Size(789, 34);
             panel1.TabIndex = 2;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.ForeColor = Color.Lime;
+            label3.Location = new Point(3, 10);
+            label3.Name = "label3";
+            label3.Size = new Size(119, 14);
+            label3.TabIndex = 9;
+            label3.Text = "Cursor Bit Mask:";
+            // 
+            // hoverBitMaskDataLabel
+            // 
+            hoverBitMaskDataLabel.AutoSize = true;
+            hoverBitMaskDataLabel.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            hoverBitMaskDataLabel.ForeColor = Color.Lime;
+            hoverBitMaskDataLabel.Location = new Point(120, 10);
+            hoverBitMaskDataLabel.Name = "hoverBitMaskDataLabel";
+            hoverBitMaskDataLabel.Size = new Size(231, 14);
+            hoverBitMaskDataLabel.TabIndex = 8;
+            hoverBitMaskDataLabel.Text = "00000000000000000000000000000000";
             // 
             // TurnLabel
             // 
@@ -75,7 +103,7 @@
             // turnDataLabel
             // 
             turnDataLabel.AutoSize = true;
-            turnDataLabel.Location = new Point(584, 9);
+            turnDataLabel.Location = new Point(526, 9);
             turnDataLabel.Name = "turnDataLabel";
             turnDataLabel.Size = new Size(35, 15);
             turnDataLabel.TabIndex = 4;
@@ -115,38 +143,16 @@
             panel2.Size = new Size(308, 235);
             panel2.TabIndex = 7;
             // 
-            // label4
+            // label9
             // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label4.ForeColor = Color.Lime;
-            label4.Location = new Point(3, 16);
-            label4.Name = "label4";
-            label4.Size = new Size(126, 14);
-            label4.TabIndex = 1;
-            label4.Text = "Player 1 (Binary)";
-            // 
-            // player1BinaryDataLabel
-            // 
-            player1BinaryDataLabel.AutoSize = true;
-            player1BinaryDataLabel.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            player1BinaryDataLabel.ForeColor = Color.Lime;
-            player1BinaryDataLabel.Location = new Point(3, 43);
-            player1BinaryDataLabel.Name = "player1BinaryDataLabel";
-            player1BinaryDataLabel.Size = new Size(231, 14);
-            player1BinaryDataLabel.TabIndex = 2;
-            player1BinaryDataLabel.Text = "00000000000000000000000000000000";
-            // 
-            // player1HexDataLabel
-            // 
-            player1HexDataLabel.AutoSize = true;
-            player1HexDataLabel.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            player1HexDataLabel.ForeColor = Color.Lime;
-            player1HexDataLabel.Location = new Point(3, 69);
-            player1HexDataLabel.Name = "player1HexDataLabel";
-            player1HexDataLabel.Size = new Size(84, 14);
-            player1HexDataLabel.TabIndex = 3;
-            player1HexDataLabel.Text = "FF FF FF FF";
+            label9.AutoSize = true;
+            label9.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label9.ForeColor = Color.Lime;
+            label9.Location = new Point(6, 103);
+            label9.Name = "label9";
+            label9.Size = new Size(287, 14);
+            label9.TabIndex = 7;
+            label9.Text = "----------------------------------------";
             // 
             // player2HexDataLabel
             // 
@@ -181,16 +187,38 @@
             label8.TabIndex = 4;
             label8.Text = "Player 2 (Binary)";
             // 
-            // label9
+            // player1HexDataLabel
             // 
-            label9.AutoSize = true;
-            label9.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label9.ForeColor = Color.Lime;
-            label9.Location = new Point(6, 103);
-            label9.Name = "label9";
-            label9.Size = new Size(287, 14);
-            label9.TabIndex = 7;
-            label9.Text = "----------------------------------------";
+            player1HexDataLabel.AutoSize = true;
+            player1HexDataLabel.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            player1HexDataLabel.ForeColor = Color.Lime;
+            player1HexDataLabel.Location = new Point(3, 69);
+            player1HexDataLabel.Name = "player1HexDataLabel";
+            player1HexDataLabel.Size = new Size(84, 14);
+            player1HexDataLabel.TabIndex = 3;
+            player1HexDataLabel.Text = "FF FF FF FF";
+            // 
+            // player1BinaryDataLabel
+            // 
+            player1BinaryDataLabel.AutoSize = true;
+            player1BinaryDataLabel.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            player1BinaryDataLabel.ForeColor = Color.Lime;
+            player1BinaryDataLabel.Location = new Point(3, 43);
+            player1BinaryDataLabel.Name = "player1BinaryDataLabel";
+            player1BinaryDataLabel.Size = new Size(231, 14);
+            player1BinaryDataLabel.TabIndex = 2;
+            player1BinaryDataLabel.Text = "00000000000000000000000000000000";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label4.ForeColor = Color.Lime;
+            label4.Location = new Point(3, 16);
+            label4.Name = "label4";
+            label4.Size = new Size(126, 14);
+            label4.TabIndex = 1;
+            label4.Text = "Player 1 (Binary)";
             // 
             // Form1
             // 
@@ -213,6 +241,8 @@
             Paint += Form1_Paint;
             MouseDown += Form1_MouseDown;
             MouseMove += Form1_MouseMove;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
             ResumeLayout(false);
@@ -235,5 +265,7 @@
         private Label player1BinaryDataLabel;
         private Label label4;
         private Label label9;
+        private Label hoverBitMaskDataLabel;
+        private Label label3;
     }
 }

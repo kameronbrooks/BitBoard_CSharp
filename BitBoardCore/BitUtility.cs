@@ -122,7 +122,7 @@ namespace BitBoardCore
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static byte SwapBit(byte val, int from, int to)
+        public static byte MoveBit(byte val, int from, int to)
         {
             return SetBit(ClearBit(val, from), to);
         }
@@ -133,7 +133,7 @@ namespace BitBoardCore
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static ushort SwapBit(ushort val, int from, int to)
+        public static ushort MoveBit(ushort val, int from, int to)
         {
             return SetBit(ClearBit(val, from), to);
         }
@@ -144,7 +144,7 @@ namespace BitBoardCore
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static uint SwapBit(uint val, int from, int to)
+        public static uint MoveBit(uint val, int from, int to)
         {
             return SetBit(ClearBit(val, from), to);
         }
@@ -155,7 +155,7 @@ namespace BitBoardCore
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static ulong SwapBit(ulong val, int from, int to)
+        public static ulong MoveBit(ulong val, int from, int to)
         {
             return SetBit(ClearBit(val, from), to);
         }
@@ -203,6 +203,67 @@ namespace BitBoardCore
         }
 
         /// <summary>
+        /// Get the index of the first bit in the bitMask
+        /// </summary>
+        /// <param name="bitMask"></param>
+        /// <returns></returns>
+        public static int GetFirstBitPosition(uint bitMask)
+        {
+            uint oneMask = 1u;
+            int index = 0;
+            while((oneMask & (bitMask >> index)) == 0)
+            {
+                index++;
+                if(index >= sizeof(uint)*8)
+                {
+                    return -1;
+                }
+            }
+            return index;
+        }
+
+        /// <summary>
+        /// Returns true if any bits overlap
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool BitMatch(byte a, byte b)
+        {
+            return (a & b) != 0;
+        }
+        /// <summary>
+        /// Returns true if any bits overlap
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool BitMatch(ushort a, ushort b)
+        {
+            return (a & b) != 0;
+        }
+        /// <summary>
+        /// Returns true if any bits overlap
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool BitMatch(uint a, uint b)
+        {
+            return (a & b) != 0;
+        }
+        /// <summary>
+        /// Returns true if any bits overlap
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool BitMatch(ulong a, ulong b)
+        {
+            return (a & b) != 0;
+        }
+
+        /// <summary>
         /// A method to create a bit mask
         /// The bit mask is created by setting the bits from start to end to 1
         /// </summary>
@@ -242,7 +303,7 @@ namespace BitBoardCore
         /// <returns></returns>
         public static string ToHexString(uint val)
         {
-            return val.ToString("X");
+            return val.ToString("X").PadLeft(8, '0');
         }
 
     }

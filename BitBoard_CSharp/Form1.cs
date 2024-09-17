@@ -1,4 +1,5 @@
 using BitBoardCore;
+using System;
 using System.Diagnostics;
 
 namespace BitBoard_CSharp
@@ -18,8 +19,44 @@ namespace BitBoard_CSharp
 
             _game = new BitBoardCore.BitBoardGame();
             _game.onBoardChange = OnBoardUpdate;
+            _game.onTurnChange = OnTurnUpdate;
+            _game.onGameOver = OnGameOver;
+
+            LoadResources();
 
 
+        }
+
+        private void LoadResources()
+        {
+            Image checker_icon = null;
+            Image king_icon = null;
+            Image move_icon = null;
+
+            using (MemoryStream stream = new MemoryStream(Properties.Resources.checker_icon))
+            {
+                checker_icon = Image.FromStream(stream);
+            }
+            using (MemoryStream stream = new MemoryStream(Properties.Resources.king))
+            {
+                king_icon = Image.FromStream(stream);
+            }
+            using (MemoryStream stream = new MemoryStream(Properties.Resources.move_icon))
+            {
+                move_icon = Image.FromStream(stream);
+            }
+
+            _game.SetResources(checker_icon, king_icon, move_icon);
+        }
+
+        private void OnGameOver(int gameState)
+        {
+
+        }
+
+        private void OnTurnUpdate(int turn)
+        {
+            turnDataLabel.Text = turn.ToString() + "  (" + ((turn % 2) == 0 ? "Red" : "Black") + ")";
         }
 
         private void OnBoardUpdate(uint player1Board, uint player2Board)
@@ -50,7 +87,7 @@ namespace BitBoard_CSharp
         {
             _game.SetMousePosition(e.X, e.Y);
             doubleBufferedPanel1.Invalidate();
-            
+
 
         }
 
@@ -62,6 +99,14 @@ namespace BitBoard_CSharp
         private void doubleBufferedPanel1_MouseMove(object sender, MouseEventArgs e)
         {
             _game.SetMousePosition(e.X, e.Y);
+            doubleBufferedPanel1.Invalidate();
+
+            hoverBitMaskDataLabel.Text = BitUtility.ToBinaryString(_game.hoverBitMask);
+        }
+
+        private void doubleBufferedPanel1_MouseClick(object sender, MouseEventArgs e)
+        {
+            _game.OnMouseDown(e.X, e.Y);
             doubleBufferedPanel1.Invalidate();
         }
     }
