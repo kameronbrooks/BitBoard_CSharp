@@ -24,7 +24,8 @@ namespace BitBoard_CSharp
 
             LoadResources();
 
-
+            Debug.WriteLine(BitUtility.ClearBit(0xFFF, 13));
+            Debug.WriteLine(BitUtility.SetBit(0x0, 13));
         }
 
         private void LoadResources()

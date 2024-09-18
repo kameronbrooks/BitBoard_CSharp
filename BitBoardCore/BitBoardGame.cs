@@ -155,6 +155,11 @@ namespace BitBoardCore
 
         protected void IncrementTurn()
         {
+            // Deselct the cell and clear the potential moves
+            SetSelectedCell(-1, -1);
+            _potentialMoveBitMask = 0u;
+
+            // Increment the turn
             ++_currentTurn;
 
             UpdateGameState();
@@ -191,6 +196,7 @@ namespace BitBoardCore
         /// <param name="toBit"></param>
         public void MovePiece(int playerID, int fromBit, int toBit)
         {
+            Debug.Write("From: " + fromBit + " To:" + toBit);
             // Move the bit to the new position from the old position
             _pieces[playerID] = BitUtility.MoveBit(_pieces[playerID], fromBit, toBit);
             _kingStatusMask = BitUtility.MoveBit(_kingStatusMask, fromBit, toBit);
@@ -205,6 +211,7 @@ namespace BitBoardCore
             }
 
             UpdateUI();
+            IncrementTurn();
         }
 
         public bool IsLegalMove(int playerID, int fromBit, int toBit)
@@ -259,13 +266,164 @@ namespace BitBoardCore
                 return;
             }
 
+            int otherTeamIndex = GetOtherPlayerID(teamIndex);
+
+            uint myTeamBitmask = _pieces[teamIndex];
+            uint otherTeamBitmask = _pieces[otherTeamIndex];
+            uint allPiecesMask = _pieces[0] | _pieces[1];
+            bool isKing = ((_selectedBitMask & _kingStatusMask) != 0);
+
             // If team index is 0 (player 1)
-            if (teamIndex == PLAYER_1)
+            if ((teamIndex == PLAYER_1) || isKing)
             {
-                
+                // Calculate the potential non jump moves based on the position of the checker
+                // 0 8 16 24 
+                if(BitUtility.BitMatch(_selectedBitMask, 0x1010101u))
+                {
+                    uint targetBitMask = _selectedBitMask << 4;
+                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);    
+                }
+                // 28 29 30 31
+                else if (BitUtility.BitMatch(_selectedBitMask, 0xF0000000u))
+                {
+                    // No moves
+                } 
+                // every other position
+                else
+                {
+                    uint targetBitMask = (_selectedBitMask << 3) | (_selectedBitMask << 4);
+                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
+                }
+
+                // Calculate the potential jump moves based on the position of the checker
+                _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
             }
 
+            // If team index is 1 (player 2)
+            if ((teamIndex == PLAYER_2) || isKing)
+            {
+                // Calculate the potential non jump moves based on the position of the checker
+                // 0 8 16 24 
+                if (BitUtility.BitMatch(_selectedBitMask, 0x1010100u))
+                {
+                    uint targetBitMask = _selectedBitMask >> 3;
+                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
+                }
+                // 0 1 2 3
+                else if (BitUtility.BitMatch(_selectedBitMask, 0x0000000Fu))
+                {
+                    // No moves
+                }
+                // every other position
+                else
+                {
+                    uint targetBitMask = (_selectedBitMask >> 3) | (_selectedBitMask >> 4);
+                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
+                }
 
+                // Calculate the potential jump moves based on the position of the checker
+                _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
+            }
+        }
+
+        private uint TestJumps(int teamIndex, uint positionMask, uint myPieceMask, uint otherPieceMask, bool isKing)
+        {
+            uint allPiecesMask = myPieceMask | otherPieceMask;
+            uint branchMask = 0u;
+            // If player 1 or the piece is a king
+            if(teamIndex == PLAYER_1 || isKing)
+            {
+                if(BitUtility.BitMatch(_selectedBitMask, 0x10101u))
+                {
+
+                    if(((positionMask << 4) & otherPieceMask) != 0)
+                    {
+                        uint targetBitMask = positionMask << 9;
+                        if ((targetBitMask & ~allPiecesMask) != 0)
+                        {
+                            _potentialMoveBitMask |= targetBitMask;
+
+                            _potentialMoveBitMask |= TestJumps(
+                                teamIndex, 
+                                targetBitMask, 
+                                (myPieceMask & ~positionMask) | targetBitMask, 
+                                otherPieceMask,
+                                isKing
+                                );
+                        }
+                            
+                    }
+                    
+                }
+                else if (BitUtility.BitMatch(_selectedBitMask, 0x80804u))
+                {
+                    if (((positionMask << 3) & otherPieceMask) != 0)
+                    {
+                        uint targetBitMask = positionMask << 7;
+                        if ((targetBitMask & ~allPiecesMask) != 0)
+                        {
+                            _potentialMoveBitMask |= targetBitMask;
+
+                            _potentialMoveBitMask |= TestJumps(
+                                teamIndex,
+                                targetBitMask,
+                                (myPieceMask & ~positionMask) | targetBitMask,
+                                otherPieceMask,
+                                isKing
+                                );
+                        }
+
+                    }
+                }
+                else if (BitUtility.BitMatch(_selectedBitMask, 0xFF000000u))
+                {
+                    // No jumps
+                }
+                else
+                {
+                    if (((positionMask << 4) & otherPieceMask) != 0)
+                    {
+                        uint targetBitMask = positionMask << 9;
+                        if ((targetBitMask & ~allPiecesMask) != 0)
+                        {
+                            _potentialMoveBitMask |= targetBitMask;
+
+                            _potentialMoveBitMask |= TestJumps(
+                                teamIndex,
+                                targetBitMask,
+                                (myPieceMask & ~positionMask) | targetBitMask,
+                                otherPieceMask,
+                                isKing
+                                );
+                        }
+
+                    }
+                    if (((positionMask << 3) & otherPieceMask) != 0)
+                    {
+                        uint targetBitMask = positionMask << 7;
+                        if ((targetBitMask & ~allPiecesMask) != 0)
+                        {
+                            _potentialMoveBitMask |= targetBitMask;
+
+                            _potentialMoveBitMask |= TestJumps(
+                                teamIndex,
+                                targetBitMask,
+                                (myPieceMask & ~positionMask) | targetBitMask,
+                                otherPieceMask,
+                                isKing
+                                );
+                        }
+
+                    }
+                }
+            }
+            // If player 2 or the piece is a king
+            if (teamIndex == PLAYER_2 || ((positionMask & _kingStatusMask) != 0))
+            {
+
+            }
+
+            return branchMask;
         }
 
         public void UpdateUI()
@@ -351,13 +509,35 @@ namespace BitBoardCore
 
         protected void RenderUI(System.Drawing.Graphics graphics)
         {
-            if (_hoverBitMask == 0)
+            
+            // Draw the potential moves
+            if (_potentialMoveBitMask != 0)
             {
-                return;
+                for (int i = 0; i < sizeof(uint) * 8; i++)
+                {
+                    int boardIndex = i * 2;
+                    int y = boardIndex / BOARD_COLUMNS;
+                    int x = boardIndex - (y * BOARD_COLUMNS) + (y % 2);     // Get the x position based on the cell id
+                    Rectangle cellRect = new Rectangle() { X = CELL_SIZE * x, Y = (CELL_SIZE * 7) - (CELL_SIZE * y), Height = CELL_SIZE, Width = CELL_SIZE };
+
+                    if (BitUtility.CheckBit(_potentialMoveBitMask, i) != 0)
+                    {
+                        RenderingUtility.RenderImage(graphics, _moveIcon, cellRect, _uiColorMatrix);
+                    }
+                }
+                
             }
 
-            Pen pen = new Pen(Color.GreenYellow, 5);
-            graphics.DrawRectangle(pen, new Rectangle() { X = CELL_SIZE * _hoverCellIndex[0], Y = CELL_SIZE * (7-_hoverCellIndex[1]), Height = CELL_SIZE, Width = CELL_SIZE });
+            Rectangle rect = new Rectangle() { X = CELL_SIZE * _hoverCellIndex[0], Y = CELL_SIZE * (7 - _hoverCellIndex[1]), Height = CELL_SIZE, Width = CELL_SIZE };
+
+            // Draw the cursor
+            if (_hoverBitMask != 0)
+            {
+                Pen pen = new Pen(Color.GreenYellow, 5);
+                graphics.DrawRectangle(pen, rect);
+            }
+
+            
         }
 
         public void OnMouseDown(int x, int y)
@@ -368,6 +548,12 @@ namespace BitBoardCore
                 if (_hoverBitMask == _selectedBitMask)
                 {
                     SetSelectedCell(-1, -1);
+                    _potentialMoveBitMask = 0;
+                }
+
+                if(BitUtility.BitMatch(_hoverBitMask, _potentialMoveBitMask))
+                {
+                    MovePiece(_currentTurn % 2, BitUtility.GetFirstBitPosition(_selectedBitMask), BitUtility.GetFirstBitPosition(_hoverBitMask));
                 }
             }
             else
@@ -381,6 +567,7 @@ namespace BitBoardCore
                 if(BitUtility.BitMatch(_hoverBitMask, _pieces[_currentTurn%2]))
                 {
                     SetSelectedCell();
+                    CalculatePotentialMoves();
                 }
                 
                 

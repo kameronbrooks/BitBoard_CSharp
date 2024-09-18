@@ -33,22 +33,22 @@ namespace BitBoardCore
         // Set the bit in the specified position  to 1
         public static byte SetBit(byte val, int pos)
         {
-            return (byte)(val & ((byte)1 << pos));
+            return (byte)(val | ((byte)1 << pos));
         }
 
         public static ushort SetBit(ushort val, int pos)
         {
-            return (ushort)(val & ((ushort)1 << pos));
+            return (ushort)(val | ((ushort)1 << pos));
         }
 
         public static uint SetBit(uint val, int pos)
         {
-            return (val & (1u << pos));
+            return (val | (1u << pos));
         }
 
         public static ulong SetBit(ulong val, int pos)
         {
-            return (ulong)(val & (1ul << pos));
+            return (ulong)(val | (1ul << pos));
         }
 
         // Clear the bit in the specified position
