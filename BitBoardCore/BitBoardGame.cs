@@ -14,8 +14,7 @@ namespace BitBoardCore
 {
     public class BitBoardGame
     {
-        const uint INITIAL_PLAYER_1_STATE = 0x0000_0FFFu;   // Player 1 Initial State bits
-        const uint INITIAL_PLAYER_2_STATE = 0xFFF0_0000u;   // Player 2 Initial State bits   
+        
 
         public const int PLAYER_1 = 0;                      // Constant for the player 1 index
         public const int PLAYER_2 = 1;                      // Constant for the player 2 index
@@ -112,8 +111,8 @@ namespace BitBoardCore
         {
             _pieces = new uint[2];
             _currentTurn = -1;
-            _hoverCellIndex = new int[2] { -1, -1 };
-            _selectedCellIndex = new int[2] { -1, -1 };
+            _hoverCellIndex = [-1, -1];
+            _selectedCellIndex = [-1, -1];
             _hoverBitMask = 0;
             _selectedBitMask = 0;
             onBoardChange = null;
@@ -145,8 +144,8 @@ namespace BitBoardCore
         /// </summary>
         public void InitializeBoard()
         {
-            _pieces[PLAYER_1] = INITIAL_PLAYER_1_STATE;
-            _pieces[PLAYER_2] = INITIAL_PLAYER_2_STATE;
+            _pieces[PLAYER_1] = BoardBitStates.INITIAL_PLAYER_1_STATE;
+            _pieces[PLAYER_2] = BoardBitStates.INITIAL_PLAYER_2_STATE;
             _kingStatusMask = 0u;
             UpdateUI();
 
@@ -241,6 +240,7 @@ namespace BitBoardCore
 
         private void CalculatePotentialMoves()
         {
+            // Generate the potential moves based on the selected piece
             // Clear the potential moves
             _potentialMoveBitMask = 0u;
 
@@ -267,7 +267,6 @@ namespace BitBoardCore
             }
 
             int otherTeamIndex = GetOtherPlayerID(teamIndex);
-
             uint myTeamBitmask = _pieces[teamIndex];
             uint otherTeamBitmask = _pieces[otherTeamIndex];
             uint allPiecesMask = _pieces[0] | _pieces[1];
@@ -333,12 +332,24 @@ namespace BitBoardCore
             // If player 1 or the piece is a king
             if(teamIndex == PLAYER_1 || isKing)
             {
-                if(BitUtility.BitMatch(_selectedBitMask, 0x10101u))
+                // Check to see if the selected bit mask is in 0xEEEEEEu
+
+                // ░░::░░::░░::░░::
+                // ::░░::░░::░░::░░
+                // ░░::░░▉▉░░▉▉░░▉▉
+                // ::░░▉▉░░▉▉░░▉▉░░
+                // ░░::░░▉▉░░▉▉░░▉▉
+                // ::░░▉▉░░▉▉░░▉▉░░
+                // ░░::░░▉▉░░▉▉░░▉▉
+                // ::░░▉▉░░▉▉░░▉▉░░
+
+
+                if (BitUtility.BitMatch(_selectedBitMask, 0xEEEEEEu))
                 {
 
-                    if(((positionMask << 4) & otherPieceMask) != 0)
+                    if(((positionMask << 3) & otherPieceMask) != 0)
                     {
-                        uint targetBitMask = positionMask << 9;
+                        uint targetBitMask = positionMask << 7;
                         if ((targetBitMask & ~allPiecesMask) != 0)
                         {
                             _potentialMoveBitMask |= targetBitMask;
@@ -355,11 +366,21 @@ namespace BitBoardCore
                     }
                     
                 }
-                else if (BitUtility.BitMatch(_selectedBitMask, 0x80804u))
+
+                // ░░::░░::░░::░░::
+                // ::░░::░░::░░::░░
+                // ░░▉▉░░▉▉░░▉▉░░::
+                // ▉▉░░▉▉░░▉▉░░::░░
+                // ░░▉▉░░▉▉░░▉▉░░::
+                // ▉▉░░▉▉░░▉▉░░::░░
+                // ░░▉▉░░▉▉░░▉▉░░::
+                // ▉▉░░▉▉░░▉▉░░::░░
+
+                else if (BitUtility.BitMatch(_selectedBitMask, 0x777777u))
                 {
-                    if (((positionMask << 3) & otherPieceMask) != 0)
+                    if (((positionMask << 4) & otherPieceMask) != 0)
                     {
-                        uint targetBitMask = positionMask << 7;
+                        uint targetBitMask = positionMask << 9;
                         if ((targetBitMask & ~allPiecesMask) != 0)
                         {
                             _potentialMoveBitMask |= targetBitMask;
@@ -375,6 +396,15 @@ namespace BitBoardCore
 
                     }
                 }
+
+                // ░░::░░::░░::░░::
+                // ::░░::░░::░░::░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
                 else if (BitUtility.BitMatch(_selectedBitMask, 0xFF000000u))
                 {
                     // No jumps
