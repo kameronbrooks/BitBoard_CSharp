@@ -113,8 +113,9 @@ namespace BitBoardCore
             _currentTurn = -1;
             _hoverCellIndex = [-1, -1];
             _selectedCellIndex = [-1, -1];
-            _hoverBitMask = 0;
-            _selectedBitMask = 0;
+            _hoverBitMask = 0u;
+            _selectedBitMask = 0u;
+            _kingStatusMask = 0u;
             onBoardChange = null;
             _pieceColorMatrices = new ColorMatrix[2];
             _gameWinner = -1;
@@ -235,7 +236,28 @@ namespace BitBoardCore
 
         public void UpdateGameState()
         {
+            // Check for game over
+            if (_pieces[0] == 0u)
+            {
+                OnGameOver(PLAYER_2);
+            }
+            if (_pieces[1] == 0u)
+            {
+                OnGameOver(PLAYER_1);
+            }
 
+            // Update king status
+            _kingStatusMask |= _pieces[0] & BoardBitStates.INITIAL_PLAYER_1_FINALROW;
+            _kingStatusMask |= _pieces[1] & BoardBitStates.INITIAL_PLAYER_2_FINALROW;
+
+        }
+
+        private void OnGameOver(int winner)
+        {
+            if(onGameOver != null)
+            {
+                onGameOver(winner);
+            }
         }
 
         private void CalculatePotentialMoves()
@@ -270,187 +292,191 @@ namespace BitBoardCore
             uint myTeamBitmask = _pieces[teamIndex];
             uint otherTeamBitmask = _pieces[otherTeamIndex];
             uint allPiecesMask = _pieces[0] | _pieces[1];
-            bool isKing = ((_selectedBitMask & _kingStatusMask) != 0);
+            //bool isKing = ((_selectedBitMask & _kingStatusMask) != 0);
+            bool isKing = BitUtility.BitMatch(_selectedBitMask, _kingStatusMask);
 
-            // If team index is 0 (player 1)
             if ((teamIndex == PLAYER_1) || isKing)
             {
-                // Calculate the potential non jump moves based on the position of the checker
-                // 0 8 16 24 
-                if(BitUtility.BitMatch(_selectedBitMask, 0x1010101u))
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_LMOVE_MASK, _selectedBitMask))
                 {
-                    uint targetBitMask = _selectedBitMask << 4;
-                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);    
-                }
-                // 28 29 30 31
-                else if (BitUtility.BitMatch(_selectedBitMask, 0xF0000000u))
-                {
-                    // No moves
-                } 
-                // every other position
-                else
-                {
-                    uint targetBitMask = (_selectedBitMask << 3) | (_selectedBitMask << 4);
-                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 3 : 4;
+
+                    uint targetBitMask = (_selectedBitMask << jumpBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        _potentialMoveBitMask |= targetBitMask;
+                    }
                 }
 
-                // Calculate the potential jump moves based on the position of the checker
-                _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_RMOVE_MASK, _selectedBitMask))
+                {
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 4 : 5;
+
+                    uint targetBitMask = (_selectedBitMask << jumpBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        _potentialMoveBitMask |= targetBitMask;
+                    }
+                }
+
             }
 
-            // If team index is 1 (player 2)
             if ((teamIndex == PLAYER_2) || isKing)
             {
-                // Calculate the potential non jump moves based on the position of the checker
-                // 0 8 16 24 
-                if (BitUtility.BitMatch(_selectedBitMask, 0x1010100u))
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_LMOVE_MASK, _selectedBitMask))
                 {
-                    uint targetBitMask = _selectedBitMask >> 3;
-                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
-                }
-                // 0 1 2 3
-                else if (BitUtility.BitMatch(_selectedBitMask, 0x0000000Fu))
-                {
-                    // No moves
-                }
-                // every other position
-                else
-                {
-                    uint targetBitMask = (_selectedBitMask >> 3) | (_selectedBitMask >> 4);
-                    _potentialMoveBitMask |= (targetBitMask & ~allPiecesMask);
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                   
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 5 : 4;
+
+                    uint targetBitMask = (_selectedBitMask >> jumpBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        _potentialMoveBitMask |= targetBitMask;
+                    }
                 }
 
-                // Calculate the potential jump moves based on the position of the checker
-                _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_RMOVE_MASK, _selectedBitMask))
+                {
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 4 : 3;
+                    uint targetBitMask = (_selectedBitMask >> jumpBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        _potentialMoveBitMask |= targetBitMask;
+                    }
+                }
+
             }
+
+            // Check for captures as well
+            _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
+
         }
 
         private uint TestJumps(int teamIndex, uint positionMask, uint myPieceMask, uint otherPieceMask, bool isKing)
         {
             uint allPiecesMask = myPieceMask | otherPieceMask;
             uint branchMask = 0u;
+            isKing = false;
             // If player 1 or the piece is a king
             if(teamIndex == PLAYER_1 || isKing)
             {
-                // Check to see if the selected bit mask is in 0xEEEEEEu
-
-                // ░░::░░::░░::░░::
-                // ::░░::░░::░░::░░
-                // ░░::░░▉▉░░▉▉░░▉▉
-                // ::░░▉▉░░▉▉░░▉▉░░
-                // ░░::░░▉▉░░▉▉░░▉▉
-                // ::░░▉▉░░▉▉░░▉▉░░
-                // ░░::░░▉▉░░▉▉░░▉▉
-                // ::░░▉▉░░▉▉░░▉▉░░
-
-
-                if (BitUtility.BitMatch(_selectedBitMask, 0xEEEEEEu))
+                // Check to see if the bit is in the player 1 jump state area
+                if(BitUtility.BitMatch(BoardBitStates.PLAYER1_LJUMP_MASK, positionMask))
                 {
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 7 : 7;
+                    int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 3 : 4;
 
-                    if(((positionMask << 3) & otherPieceMask) != 0)
+                    uint targetBitMask = (positionMask << jumpBitOffset);
+                    uint captureBitMask = (positionMask << captureBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
-                        uint targetBitMask = positionMask << 7;
-                        if ((targetBitMask & ~allPiecesMask) != 0)
-                        {
-                            _potentialMoveBitMask |= targetBitMask;
+                        branchMask |= targetBitMask;
 
-                            _potentialMoveBitMask |= TestJumps(
-                                teamIndex, 
-                                targetBitMask, 
-                                (myPieceMask & ~positionMask) | targetBitMask, 
-                                otherPieceMask,
-                                isKing
-                                );
-                        }
-                            
-                    }
-                    
-                }
-
-                // ░░::░░::░░::░░::
-                // ::░░::░░::░░::░░
-                // ░░▉▉░░▉▉░░▉▉░░::
-                // ▉▉░░▉▉░░▉▉░░::░░
-                // ░░▉▉░░▉▉░░▉▉░░::
-                // ▉▉░░▉▉░░▉▉░░::░░
-                // ░░▉▉░░▉▉░░▉▉░░::
-                // ▉▉░░▉▉░░▉▉░░::░░
-
-                else if (BitUtility.BitMatch(_selectedBitMask, 0x777777u))
-                {
-                    if (((positionMask << 4) & otherPieceMask) != 0)
-                    {
-                        uint targetBitMask = positionMask << 9;
-                        if ((targetBitMask & ~allPiecesMask) != 0)
-                        {
-                            _potentialMoveBitMask |= targetBitMask;
-
-                            _potentialMoveBitMask |= TestJumps(
-                                teamIndex,
-                                targetBitMask,
-                                (myPieceMask & ~positionMask) | targetBitMask,
-                                otherPieceMask,
-                                isKing
-                                );
-                        }
-
+                        branchMask |= TestJumps(
+                            teamIndex,
+                            targetBitMask,
+                            (myPieceMask & ~positionMask) | targetBitMask,
+                            (otherPieceMask & ~captureBitMask),
+                            isKing
+                        );
                     }
                 }
-
-                // ░░::░░::░░::░░::
-                // ::░░::░░::░░::░░
-                // ░░▉▉░░▉▉░░▉▉░░▉▉
-                // ▉▉░░▉▉░░▉▉░░▉▉░░
-                // ░░▉▉░░▉▉░░▉▉░░▉▉
-                // ▉▉░░▉▉░░▉▉░░▉▉░░
-                // ░░▉▉░░▉▉░░▉▉░░▉▉
-                // ▉▉░░▉▉░░▉▉░░▉▉░░
-                else if (BitUtility.BitMatch(_selectedBitMask, 0xFF000000u))
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_RJUMP_MASK, positionMask))
                 {
-                    // No jumps
-                }
-                else
-                {
-                    if (((positionMask << 4) & otherPieceMask) != 0)
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 9 : 9;
+                    int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 4 : 5;
+
+                    uint targetBitMask = (positionMask << jumpBitOffset);
+                    uint captureBitMask = (positionMask << captureBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
-                        uint targetBitMask = positionMask << 9;
-                        if ((targetBitMask & ~allPiecesMask) != 0)
-                        {
-                            _potentialMoveBitMask |= targetBitMask;
+                        branchMask |= targetBitMask;
 
-                            _potentialMoveBitMask |= TestJumps(
-                                teamIndex,
-                                targetBitMask,
-                                (myPieceMask & ~positionMask) | targetBitMask,
-                                otherPieceMask,
-                                isKing
-                                );
-                        }
-
-                    }
-                    if (((positionMask << 3) & otherPieceMask) != 0)
-                    {
-                        uint targetBitMask = positionMask << 7;
-                        if ((targetBitMask & ~allPiecesMask) != 0)
-                        {
-                            _potentialMoveBitMask |= targetBitMask;
-
-                            _potentialMoveBitMask |= TestJumps(
-                                teamIndex,
-                                targetBitMask,
-                                (myPieceMask & ~positionMask) | targetBitMask,
-                                otherPieceMask,
-                                isKing
-                                );
-                        }
-
+                        branchMask |= TestJumps(
+                            teamIndex,
+                            targetBitMask,
+                            (myPieceMask & ~positionMask) | targetBitMask,
+                            (otherPieceMask & ~captureBitMask),
+                            isKing
+                        );
                     }
                 }
             }
             // If player 2 or the piece is a king
-            if (teamIndex == PLAYER_2 || ((positionMask & _kingStatusMask) != 0))
+            if (teamIndex == PLAYER_2 || isKing)
             {
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_LJUMP_MASK, positionMask))
+                {
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 9 : 9;
+                    int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 5 : 4;
 
+                    uint targetBitMask = (positionMask >> jumpBitOffset);
+                    uint captureBitMask = (positionMask >> captureBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        branchMask |= targetBitMask;
+
+                        branchMask |= TestJumps(
+                            teamIndex,
+                            targetBitMask,
+                            (myPieceMask & ~positionMask) | targetBitMask,
+                            (otherPieceMask & ~captureBitMask),
+                            isKing
+                        );
+                    }
+                }
+                // Check to see if the bit is in the player 1 jump state area
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_RJUMP_MASK, positionMask))
+                {
+                    // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 7 : 7;
+                    int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 4 : 3;
+
+                    uint targetBitMask = (positionMask >> jumpBitOffset);
+                    uint captureBitMask = (positionMask >> captureBitOffset);
+
+                    // If there is an enemy piece in the capture position and nothing in the jump position
+                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    {
+                        branchMask |= targetBitMask;
+
+                        branchMask |= TestJumps(
+                            teamIndex,
+                            targetBitMask,
+                            (myPieceMask & ~positionMask) | targetBitMask,
+                            (otherPieceMask & ~captureBitMask),
+                            isKing
+                        );
+                    }
+                }
             }
 
             return branchMask;
@@ -500,12 +526,20 @@ namespace BitBoardCore
             }
         }
 
-        protected void RenderPiece(System.Drawing.Graphics graphics, ColorMatrix color, int cx, int cy, bool isSelected)
+        protected void RenderPiece(System.Drawing.Graphics graphics, ColorMatrix color, int cx, int cy, bool isSelected, bool isKing)
         {
             int size = (int)(CELL_SIZE * 0.75f);
             Rectangle rect = new Rectangle() { X = CELL_SIZE * cx + size / 5, Y = (CELL_SIZE * 7) - (CELL_SIZE * cy) + size / 5, Height = size, Width = size };
             //graphics.FillEllipse(brush, rect);
-            RenderingUtility.RenderImage(graphics, _checkerIcon, rect, color);
+            if(isKing)
+            {
+                RenderingUtility.RenderImage(graphics, _kingIcon, rect, color);
+            }
+            else
+            {
+                RenderingUtility.RenderImage(graphics, _checkerIcon, rect, color);
+            }
+            
 
             if(isSelected)
             {
@@ -524,15 +558,15 @@ namespace BitBoardCore
                 int x = boardIndex - (y * BOARD_COLUMNS) + (y % 2);     // Get the x position based on the cell id
 
                 bool isSelected = _selectedCellIndex[0] == x && _selectedCellIndex[1] == y;
+                bool isKing = BitUtility.CheckBit(_kingStatusMask, i) == 1;
 
-
-                if(BitUtility.CheckBit(_pieces[PLAYER_1], i) == 1)
+                if (BitUtility.CheckBit(_pieces[PLAYER_1], i) == 1)
                 {
-                    RenderPiece(graphics, _pieceColorMatrices[PLAYER_1], x, y, isSelected);
+                    RenderPiece(graphics, _pieceColorMatrices[PLAYER_1], x, y, isSelected, isKing);
                 }
                 if (BitUtility.CheckBit(_pieces[PLAYER_2], i) == 1)
                 {
-                    RenderPiece(graphics, _pieceColorMatrices[PLAYER_2], x, y, isSelected);
+                    RenderPiece(graphics, _pieceColorMatrices[PLAYER_2], x, y, isSelected, isKing);
                 }
             }
         }
@@ -579,29 +613,26 @@ namespace BitBoardCore
                 {
                     SetSelectedCell(-1, -1);
                     _potentialMoveBitMask = 0;
+                    return;
                 }
 
                 if(BitUtility.BitMatch(_hoverBitMask, _potentialMoveBitMask))
                 {
                     MovePiece(_currentTurn % 2, BitUtility.GetFirstBitPosition(_selectedBitMask), BitUtility.GetFirstBitPosition(_hoverBitMask));
-                }
-            }
-            else
-            {
-                if(!IsHoverCellValid())
-                {
                     return;
                 }
+            }
 
-                // If there is a piece on the cell we are hovering on and it is the current team, select it
-                if(BitUtility.BitMatch(_hoverBitMask, _pieces[_currentTurn%2]))
-                {
-                    SetSelectedCell();
-                    CalculatePotentialMoves();
-                }
-                
-                
-                
+            if (!IsHoverCellValid())
+            {
+                return;
+            }
+
+            // If there is a piece on the cell we are hovering on and it is the current team, select it
+            if (BitUtility.BitMatch(_hoverBitMask, _pieces[_currentTurn % 2]))
+            {
+                SetSelectedCell();
+                CalculatePotentialMoves();
             }
         }
 

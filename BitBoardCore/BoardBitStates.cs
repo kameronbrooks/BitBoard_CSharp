@@ -39,7 +39,17 @@ namespace BitBoardCore
         // ░░▉▉░░▉▉░░▉▉░░▉▉
         // ▉▉░░▉▉░░▉▉░░▉▉░░
         public const uint INITIAL_PLAYER_1_STATE = 0x0000_0FFFu;   // Player 1 Initial State bits
-         
+
+        // ░░▉▉░░▉▉░░▉▉░░▉▉
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        public const uint INITIAL_PLAYER_1_FINALROW = 0xF000_0000u;   // Player 1 Final Row (where pieces become kings)
+
         // ░░::░░::░░::░░::
         // ::░░▉▉░░▉▉░░▉▉░░
         // ░░▉▉░░▉▉░░▉▉░░▉▉
@@ -48,7 +58,7 @@ namespace BitBoardCore
         // ::░░▉▉░░▉▉░░▉▉░░
         // ░░▉▉░░▉▉░░▉▉░░▉▉
         // ::░░▉▉░░▉▉░░▉▉░░
-        public const uint PLAYER1_LMOVE_MASK = 0xEFEFEFEu;
+        public const uint PLAYER1_LMOVE_MASK = 0x0EFE_FEFEu;
 
         // ░░::░░::░░::░░::
         // ▉▉░░▉▉░░▉▉░░▉▉░░
@@ -58,7 +68,7 @@ namespace BitBoardCore
         // ▉▉░░▉▉░░▉▉░░▉▉░░
         // ░░▉▉░░▉▉░░▉▉░░::
         // ▉▉░░▉▉░░▉▉░░▉▉░░
-        public const uint PLAYER1_RMOVE_MASK = 0xF7F7F7Fu;
+        public const uint PLAYER1_RMOVE_MASK = 0x0F7F_7F7Fu;
 
         // ░░::░░::░░::░░::
         // ::░░::░░::░░::░░
@@ -68,7 +78,7 @@ namespace BitBoardCore
         // ::░░▉▉░░▉▉░░▉▉░░
         // ░░::░░▉▉░░▉▉░░▉▉
         // ::░░▉▉░░▉▉░░▉▉░░
-        public const uint PLAYER1_LJUMP_MASK = 0xEEEEEEu;
+        public const uint PLAYER1_LJUMP_MASK = 0x00EE_EEEEu;
 
         // ░░::░░::░░::░░::
         // ::░░::░░::░░::░░
@@ -78,7 +88,7 @@ namespace BitBoardCore
         // ▉▉░░▉▉░░▉▉░░::░░
         // ░░▉▉░░▉▉░░▉▉░░::
         // ▉▉░░▉▉░░▉▉░░::░░
-        public const uint PLAYER1_RJUMP_MASK = 0x777777u;
+        public const uint PLAYER1_RJUMP_MASK = 0x0077_7777u;
 
         // =-=-=-=-=-=-=-=-=-=-=-=-= PLAYER 2 =-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -91,6 +101,16 @@ namespace BitBoardCore
         // ░░::░░::░░::░░::
         // ::░░::░░::░░::░░
         public const uint INITIAL_PLAYER_2_STATE = 0xFFF0_0000u;   // Player 2 Initial State bits  
+
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ::░░::░░::░░::░░
+        // ░░::░░::░░::░░::
+        // ▉▉░░▉▉░░▉▉░░▉▉░░
+        public const uint INITIAL_PLAYER_2_FINALROW = 0x0000_000Fu;   // Player 2 Final Row (where pieces become kings)
 
         // ░░▉▉░░▉▉░░▉▉░░▉▉
         // ::░░▉▉░░▉▉░░▉▉░░

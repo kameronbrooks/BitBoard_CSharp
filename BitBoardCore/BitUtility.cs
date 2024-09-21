@@ -146,6 +146,11 @@ namespace BitBoardCore
         /// <returns></returns>
         public static uint MoveBit(uint val, int from, int to)
         {
+            // If there is not a bit at that position, there is nothing to move
+            if(CheckBit(val, from) == 0)
+            {
+                return val;
+            }
             return SetBit(ClearBit(val, from), to);
         }
         /// <summary>
