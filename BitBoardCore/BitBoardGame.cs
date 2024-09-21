@@ -35,6 +35,7 @@ namespace BitBoardCore
         uint _selectedBitMask;                              // The bitmask representation of the selected cell
 
         uint _potentialMoveBitMask;                         // The bitmask that represents the calculated potential moves for the selected piece (if there is one)
+        uint[] _potentialCaptures;                          // List of bitmasks that represents the captures resulting from each potential move
 
         bool _isGameOver;                                   // Is the game over?
         int _gameWinner;                                    // The winner of the game 0 for PLAYER_1, 1 for PLAYER_2, and -1 for a draw
@@ -110,6 +111,7 @@ namespace BitBoardCore
         public BitBoardGame()
         {
             _pieces = new uint[2];
+            _potentialCaptures = new uint[sizeof(uint) * 8];
             _currentTurn = -1;
             _hoverCellIndex = [-1, -1];
             _selectedCellIndex = [-1, -1];
@@ -200,15 +202,13 @@ namespace BitBoardCore
             // Move the bit to the new position from the old position
             _pieces[playerID] = BitUtility.MoveBit(_pieces[playerID], fromBit, toBit);
             _kingStatusMask = BitUtility.MoveBit(_kingStatusMask, fromBit, toBit);
-            // Get the id of the other player
-            int otherPlayerID = GetOtherPlayerID(playerID);
 
-            // Check to see if the cell is occupied by a piece on the other team
-            if (BitUtility.CheckBit(_pieces[otherPlayerID], toBit) == 1)
-            {
-                // If so, capture it
-                CapturePiece(otherPlayerID, toBit);
-            }
+            // Remove pieces that have been captured
+            int otherTeamID = GetOtherPlayerID(playerID);
+            Debug.WriteLine("Capture bit: " + _potentialCaptures[toBit]);
+            _pieces[otherTeamID] &= ~_potentialCaptures[toBit];
+            _kingStatusMask &= ~_potentialCaptures[toBit];
+
 
             UpdateUI();
             IncrementTurn();
@@ -260,23 +260,36 @@ namespace BitBoardCore
             }
         }
 
-        private void CalculatePotentialMoves()
+        /// <summary>
+        /// Clear the potentialMoveMask and the potentialBoardStates for each move
+        /// </summary>
+        private void ClearPotential()
         {
-            // Generate the potential moves based on the selected piece
             // Clear the potential moves
             _potentialMoveBitMask = 0u;
-
-            // If nothing is selected then return
-            if (_selectedBitMask == 0)
+            for(int i = 0; i<_potentialCaptures.Length; i++)
             {
-                return;
+                _potentialCaptures[i] = 0u;
+            }
+        }
+
+        private bool CalculatePotentialMoves(uint selectedBitMask)
+        {
+            // Generate the potential moves based on the selected piece
+            ClearPotential();
+
+            
+            // If nothing is selected then return
+            if (selectedBitMask == 0)
+            {
+                return false;
             }
 
             // figure out which pieces team is selected
             int teamIndex = -1;
             for(int i = 0; i < _pieces.Length; i++)
             {
-                if(BitUtility.BitMatch(_selectedBitMask, _pieces[i]))
+                if(BitUtility.BitMatch(selectedBitMask, _pieces[i]))
                 {
                     teamIndex = i;
                     break;
@@ -285,7 +298,7 @@ namespace BitBoardCore
             // If teamIndex == -1 then there is no piece selected
             if(teamIndex == -1)
             {
-                return;
+                return false;
             }
 
             int otherTeamIndex = GetOtherPlayerID(teamIndex);
@@ -293,17 +306,18 @@ namespace BitBoardCore
             uint otherTeamBitmask = _pieces[otherTeamIndex];
             uint allPiecesMask = _pieces[0] | _pieces[1];
             //bool isKing = ((_selectedBitMask & _kingStatusMask) != 0);
-            bool isKing = BitUtility.BitMatch(_selectedBitMask, _kingStatusMask);
+            bool isKing = BitUtility.BitMatch(selectedBitMask, _kingStatusMask);
 
+            // If the piece belongs player 1 or the piece is a king, calculate the forward moves 
             if ((teamIndex == PLAYER_1) || isKing)
             {
                 // Check to see if the bit is in the player 1 jump state area
-                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_LMOVE_MASK, _selectedBitMask))
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_LMOVE_MASK, selectedBitMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
-                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 3 : 4;
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, selectedBitMask) ? 3 : 4;
 
-                    uint targetBitMask = (_selectedBitMask << jumpBitOffset);
+                    uint targetBitMask = (selectedBitMask << jumpBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
                     if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
@@ -313,12 +327,12 @@ namespace BitBoardCore
                 }
 
                 // Check to see if the bit is in the player 1 jump state area
-                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_RMOVE_MASK, _selectedBitMask))
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER1_RMOVE_MASK, selectedBitMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
-                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 4 : 5;
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, selectedBitMask) ? 4 : 5;
 
-                    uint targetBitMask = (_selectedBitMask << jumpBitOffset);
+                    uint targetBitMask = (selectedBitMask << jumpBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
                     if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
@@ -328,17 +342,17 @@ namespace BitBoardCore
                 }
 
             }
-
+            // If the piece belongs player 2 or the piece is a king, calculate the backward moves 
             if ((teamIndex == PLAYER_2) || isKing)
             {
                 // Check to see if the bit is in the player 1 jump state area
-                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_LMOVE_MASK, _selectedBitMask))
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_LMOVE_MASK, selectedBitMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
                    
-                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 5 : 4;
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, selectedBitMask) ? 5 : 4;
 
-                    uint targetBitMask = (_selectedBitMask >> jumpBitOffset);
+                    uint targetBitMask = (selectedBitMask >> jumpBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
                     if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
@@ -348,12 +362,12 @@ namespace BitBoardCore
                 }
 
                 // Check to see if the bit is in the player 1 jump state area
-                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_RMOVE_MASK, _selectedBitMask))
+                if (BitUtility.BitMatch(BoardBitStates.PLAYER2_RMOVE_MASK, selectedBitMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
 
-                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, _selectedBitMask) ? 4 : 3;
-                    uint targetBitMask = (_selectedBitMask >> jumpBitOffset);
+                    int jumpBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, selectedBitMask) ? 4 : 3;
+                    uint targetBitMask = (selectedBitMask >> jumpBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
                     if (BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
@@ -364,18 +378,21 @@ namespace BitBoardCore
 
             }
 
-            // Check for captures as well
-            _potentialMoveBitMask |= TestJumps(teamIndex, _selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing);
+            // Check for captures moves as well
+            _potentialMoveBitMask |= TestJumps(teamIndex, selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing, 0u);
+
+            // Return true if there are any moves added to this potential move bitmask. If it is still 0, then there are no available moves
+            return _potentialMoveBitMask != 0u;
 
         }
 
-        private uint TestJumps(int teamIndex, uint positionMask, uint myPieceMask, uint otherPieceMask, bool isKing)
+        private uint TestJumps(int teamIndex, uint positionMask, uint myPieceMask, uint otherPieceMask, bool isKing, uint captureMask)
         {
             uint allPiecesMask = myPieceMask | otherPieceMask;
             uint branchMask = 0u;
-            isKing = false;
+
             // If player 1 or the piece is a king
-            if(teamIndex == PLAYER_1 || isKing)
+            if((teamIndex == PLAYER_1) || isKing)
             {
                 // Check to see if the bit is in the player 1 jump state area
                 if(BitUtility.BitMatch(BoardBitStates.PLAYER1_LJUMP_MASK, positionMask))
@@ -385,20 +402,28 @@ namespace BitBoardCore
                     int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 3 : 4;
 
                     uint targetBitMask = (positionMask << jumpBitOffset);
-                    uint captureBitMask = (positionMask << captureBitOffset);
+                    uint capturePieceBitMask = (positionMask << captureBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
-                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    if (BitUtility.BitMatch(capturePieceBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
+                        // Add the target bitmask to the potential move set
                         branchMask |= targetBitMask;
+                        // Add this capture bitmask to the capture set
+                        captureMask |= capturePieceBitMask;
 
+                        // Perform a recursive call to see if there are multiple jumps that can be performed
                         branchMask |= TestJumps(
                             teamIndex,
-                            targetBitMask,
-                            (myPieceMask & ~positionMask) | targetBitMask,
-                            (otherPieceMask & ~captureBitMask),
-                            isKing
+                            targetBitMask,                                  // The new position mask for this piece after it jumps
+                            (myPieceMask & ~positionMask) | targetBitMask,  // Our team's pieces mask with the position of this piece changed
+                            (otherPieceMask & ~capturePieceBitMask),        // Other team's pieces mask with the jumped piece gone
+                            isKing,
+                            captureMask
                         );
+
+                        // Set the potentialMoveBoardStates for the index of the jumpCell to encode the enemy piece that will be captured if that move is selected
+                        _potentialCaptures[BitUtility.GetFirstBitPosition(targetBitMask)] |= captureMask;
                     }
                 }
                 // Check to see if the bit is in the player 1 jump state area
@@ -409,27 +434,35 @@ namespace BitBoardCore
                     int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 4 : 5;
 
                     uint targetBitMask = (positionMask << jumpBitOffset);
-                    uint captureBitMask = (positionMask << captureBitOffset);
+                    uint capturePieceBitMask = (positionMask << captureBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
-                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    if (BitUtility.BitMatch(capturePieceBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
+                        // Add the target bitmask to the potential move set
                         branchMask |= targetBitMask;
+                        // Add this capture bitmask to the capture set
+                        captureMask |= capturePieceBitMask;
 
+                        // Perform a recursive call to see if there are multiple jumps that can be performed
                         branchMask |= TestJumps(
                             teamIndex,
-                            targetBitMask,
-                            (myPieceMask & ~positionMask) | targetBitMask,
-                            (otherPieceMask & ~captureBitMask),
-                            isKing
+                            targetBitMask,                                  // The new position mask for this piece after it jumps
+                            (myPieceMask & ~positionMask) | targetBitMask,  // Our team's pieces mask with the position of this piece changed
+                            (otherPieceMask & ~capturePieceBitMask),        // Other team's pieces mask with the jumped piece gone
+                            isKing,
+                            captureMask
                         );
+
+                        // Set the potentialMoveBoardStates for the index of the jumpCell to encode the enemy piece that will be captured if that move is selected
+                        _potentialCaptures[BitUtility.GetFirstBitPosition(targetBitMask)] |= captureMask;
                     }
                 }
             }
             // If player 2 or the piece is a king
-            if (teamIndex == PLAYER_2 || isKing)
+            if ((teamIndex == PLAYER_2) || isKing)
             {
-                // Check to see if the bit is in the player 1 jump state area
+                // Check to see if the bit is in the player 2 jump left state area
                 if (BitUtility.BitMatch(BoardBitStates.PLAYER2_LJUMP_MASK, positionMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
@@ -437,23 +470,32 @@ namespace BitBoardCore
                     int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 5 : 4;
 
                     uint targetBitMask = (positionMask >> jumpBitOffset);
-                    uint captureBitMask = (positionMask >> captureBitOffset);
+                    uint capturePieceBitMask = (positionMask >> captureBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
-                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    if (BitUtility.BitMatch(capturePieceBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
+                        // Add the target bitmask to the potential move set
                         branchMask |= targetBitMask;
+                        // Add this capture bitmask to the capture set
+                        captureMask |= capturePieceBitMask;
 
+                        // Perform a recursive call to see if there are multiple jumps that can be performed
                         branchMask |= TestJumps(
                             teamIndex,
-                            targetBitMask,
-                            (myPieceMask & ~positionMask) | targetBitMask,
-                            (otherPieceMask & ~captureBitMask),
-                            isKing
+                            targetBitMask,                                  // The new position mask for this piece after it jumps
+                            (myPieceMask & ~positionMask) | targetBitMask,  // Our team's pieces mask with the position of this piece changed
+                            (otherPieceMask & ~capturePieceBitMask),        // Other team's pieces mask with the jumped piece gone
+                            isKing,
+                            captureMask
                         );
+
+                        // Set the potentialMoveBoardStates for the index of the jumpCell to encode the enemy piece that will be captured if that move is selected
+                        _potentialCaptures[BitUtility.GetFirstBitPosition(targetBitMask)] |= captureMask;
                     }
+
                 }
-                // Check to see if the bit is in the player 1 jump state area
+                // Check to see if the bit is in the player 2 right jump state area
                 if (BitUtility.BitMatch(BoardBitStates.PLAYER2_RJUMP_MASK, positionMask))
                 {
                     // Calculate the jumpOffset and captureOffset based on if the positionBit is on an even or odd row
@@ -461,20 +503,28 @@ namespace BitBoardCore
                     int captureBitOffset = BitUtility.BitMatch(BoardBitStates.EVEN_ROWS, positionMask) ? 4 : 3;
 
                     uint targetBitMask = (positionMask >> jumpBitOffset);
-                    uint captureBitMask = (positionMask >> captureBitOffset);
+                    uint capturePieceBitMask = (positionMask >> captureBitOffset);
 
                     // If there is an enemy piece in the capture position and nothing in the jump position
-                    if (BitUtility.BitMatch(captureBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
+                    if (BitUtility.BitMatch(capturePieceBitMask, otherPieceMask) && BitUtility.BitMatch(targetBitMask, ~allPiecesMask))
                     {
+                        // Add the target bitmask to the potential move set
                         branchMask |= targetBitMask;
+                        // Add this capture bitmask to the capture set
+                        captureMask |= capturePieceBitMask;
 
+                        // Perform a recursive call to see if there are multiple jumps that can be performed
                         branchMask |= TestJumps(
                             teamIndex,
-                            targetBitMask,
-                            (myPieceMask & ~positionMask) | targetBitMask,
-                            (otherPieceMask & ~captureBitMask),
-                            isKing
+                            targetBitMask,                                  // The new position mask for this piece after it jumps
+                            (myPieceMask & ~positionMask) | targetBitMask,  // Our team's pieces mask with the position of this piece changed
+                            (otherPieceMask & ~capturePieceBitMask),        // Other team's pieces mask with the jumped piece gone
+                            isKing,
+                            captureMask
                         );
+
+                        // Set the potentialMoveBoardStates for the index of the jumpCell to encode the enemy piece that will be captured if that move is selected
+                        _potentialCaptures[BitUtility.GetFirstBitPosition(targetBitMask)] |= captureMask;
                     }
                 }
             }
@@ -500,9 +550,7 @@ namespace BitBoardCore
             RenderPieces(graphics);
 
             RenderUI(graphics);
-            
 
-            //graphics.FillRectangle(darkBrush, new Rectangle() { X = 0, Y = 0, Height = CELL_SIZE, Width = CELL_SIZE});
         }
         
         protected void RenderBoard(System.Drawing.Graphics graphics)
@@ -526,11 +574,20 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Render a single piece
+        /// </summary>
+        /// <param name="graphics"></param>
+        /// <param name="color"></param>
+        /// <param name="cx"></param>
+        /// <param name="cy"></param>
+        /// <param name="isSelected"></param>
+        /// <param name="isKing"></param>
         protected void RenderPiece(System.Drawing.Graphics graphics, ColorMatrix color, int cx, int cy, bool isSelected, bool isKing)
         {
             int size = (int)(CELL_SIZE * 0.75f);
             Rectangle rect = new Rectangle() { X = CELL_SIZE * cx + size / 5, Y = (CELL_SIZE * 7) - (CELL_SIZE * cy) + size / 5, Height = size, Width = size };
-            //graphics.FillEllipse(brush, rect);
+
             if(isKing)
             {
                 RenderingUtility.RenderImage(graphics, _kingIcon, rect, color);
@@ -540,7 +597,7 @@ namespace BitBoardCore
                 RenderingUtility.RenderImage(graphics, _checkerIcon, rect, color);
             }
             
-
+            // Draw the circle around the piece if it is currently selected
             if(isSelected)
             {
                 Pen selectedPen = new Pen(Color.GreenYellow, 5);
@@ -549,6 +606,10 @@ namespace BitBoardCore
 
         }
 
+        /// <summary>
+        /// Render all the pieces on the board
+        /// </summary>
+        /// <param name="graphics"></param>
         protected void RenderPieces(System.Drawing.Graphics graphics)
         {
             for(int i = 0; i < sizeof(uint)*8; i++)
@@ -560,10 +621,12 @@ namespace BitBoardCore
                 bool isSelected = _selectedCellIndex[0] == x && _selectedCellIndex[1] == y;
                 bool isKing = BitUtility.CheckBit(_kingStatusMask, i) == 1;
 
+                // Draw player 1's pieces 
                 if (BitUtility.CheckBit(_pieces[PLAYER_1], i) == 1)
                 {
                     RenderPiece(graphics, _pieceColorMatrices[PLAYER_1], x, y, isSelected, isKing);
                 }
+                // Draw player 2's pieces
                 if (BitUtility.CheckBit(_pieces[PLAYER_2], i) == 1)
                 {
                     RenderPiece(graphics, _pieceColorMatrices[PLAYER_2], x, y, isSelected, isKing);
@@ -571,6 +634,10 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Render the UI elements
+        /// </summary>
+        /// <param name="graphics"></param>
         protected void RenderUI(System.Drawing.Graphics graphics)
         {
             
@@ -600,8 +667,6 @@ namespace BitBoardCore
                 Pen pen = new Pen(Color.GreenYellow, 5);
                 graphics.DrawRectangle(pen, rect);
             }
-
-            
         }
 
         public void OnMouseDown(int x, int y)
@@ -632,7 +697,7 @@ namespace BitBoardCore
             if (BitUtility.BitMatch(_hoverBitMask, _pieces[_currentTurn % 2]))
             {
                 SetSelectedCell();
-                CalculatePotentialMoves();
+                CalculatePotentialMoves(_selectedBitMask);
             }
         }
 
@@ -658,6 +723,11 @@ namespace BitBoardCore
             _selectedBitMask = CreateMaskFromBoardIndex(_selectedCellIndex[0], _selectedCellIndex[1]);
         }
 
+        /// <summary>
+        /// Set the cell that the cursor is on
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void SetHoverCell(int x, int y)
         {
             _hoverCellIndex[0] = x / CELL_SIZE;
