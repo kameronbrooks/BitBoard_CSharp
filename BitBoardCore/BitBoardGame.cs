@@ -127,8 +127,8 @@ namespace BitBoardCore
 
         private void InitializeResources()
         {
-            _pieceColorMatrices[0] = RenderingUtility.GetColorMatrix(Color.Red);
-            _pieceColorMatrices[1] = RenderingUtility.GetColorMatrix(Color.FromArgb(255,50,50,50));
+            _pieceColorMatrices[0] = RenderingUtility.GetColorMatrix(Color.FromArgb(255, 255, 50, 50));
+            _pieceColorMatrices[1] = RenderingUtility.GetColorMatrix(Color.FromArgb(255, 50, 50, 50));
 
             _uiColorMatrix = RenderingUtility.GetColorMatrix(Color.GreenYellow);
         }
@@ -198,14 +198,12 @@ namespace BitBoardCore
         /// <param name="toBit"></param>
         public void MovePiece(int playerID, int fromBit, int toBit)
         {
-            Debug.Write("From: " + fromBit + " To:" + toBit);
             // Move the bit to the new position from the old position
             _pieces[playerID] = BitUtility.MoveBit(_pieces[playerID], fromBit, toBit);
             _kingStatusMask = BitUtility.MoveBit(_kingStatusMask, fromBit, toBit);
 
             // Remove pieces that have been captured
             int otherTeamID = GetOtherPlayerID(playerID);
-            Debug.WriteLine("Capture bit: " + _potentialCaptures[toBit]);
             _pieces[otherTeamID] &= ~_potentialCaptures[toBit];
             _kingStatusMask &= ~_potentialCaptures[toBit];
 
@@ -308,6 +306,15 @@ namespace BitBoardCore
             //bool isKing = ((_selectedBitMask & _kingStatusMask) != 0);
             bool isKing = BitUtility.BitMatch(selectedBitMask, _kingStatusMask);
 
+            // Check for captures moves first since it is mandatory to capture if you can
+            _potentialMoveBitMask |= TestJumps(teamIndex, selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing, 0u);
+
+            if (_potentialMoveBitMask != 0u)
+            {
+                // Exit now, because we want the captures to be mandatory. The player cannot chose a non capture move if there is already something found
+                return _potentialMoveBitMask != 0u;
+            }
+
             // If the piece belongs player 1 or the piece is a king, calculate the forward moves 
             if ((teamIndex == PLAYER_1) || isKing)
             {
@@ -378,8 +385,7 @@ namespace BitBoardCore
 
             }
 
-            // Check for captures moves as well
-            _potentialMoveBitMask |= TestJumps(teamIndex, selectedBitMask, myTeamBitmask, otherTeamBitmask, isKing, 0u);
+            
 
             // Return true if there are any moves added to this potential move bitmask. If it is still 0, then there are no available moves
             return _potentialMoveBitMask != 0u;
