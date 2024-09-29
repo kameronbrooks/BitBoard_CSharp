@@ -31,7 +31,7 @@ namespace BitBoard_CSharp
             Debug.WriteLine(BitUtility.ClearBit(0xFFF, 13));
             Debug.WriteLine(BitUtility.SetBit(0x0, 13));
 
-            
+
         }
 
         private void LoadResources()
@@ -50,7 +50,7 @@ namespace BitBoard_CSharp
                 _moveIcon = Image.FromStream(stream);
             }
             _resourcesLoaded = true;
-            
+
         }
 
         private void OnGameOver(int gameState)
@@ -71,7 +71,7 @@ namespace BitBoard_CSharp
         private void StartGame()
         {
             // Load the images if they have not been loaded yet
-            if(!_resourcesLoaded)
+            if (!_resourcesLoaded)
             {
                 LoadResources();
             }
@@ -87,6 +87,8 @@ namespace BitBoard_CSharp
 
             // Set the images used in the game rendering
             _game.SetResources(_checkerIcon, _kingIcon, _moveIcon);
+
+            _game.InitializeBoard();
         }
 
         private void OnTurnUpdate(int turn)
@@ -110,7 +112,7 @@ namespace BitBoard_CSharp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            _game.InitializeBoard();
+            
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -143,6 +145,11 @@ namespace BitBoard_CSharp
         {
             _game.OnMouseDown(e.X, e.Y);
             doubleBufferedPanel1.Invalidate();
+        }
+
+        private void restartButton_Click(object sender, EventArgs e)
+        {
+            StartGame();
         }
     }
 }

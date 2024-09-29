@@ -79,6 +79,16 @@ namespace BitBoardCore
             }
         }
 
+        public bool isGameOver()
+        {
+            return _isGameOver;
+        }
+
+        public bool isGameActive()
+        {
+            return !_isGameOver;
+        }
+
         public bool IsCellSelected()
         {
             return _selectedCellIndex[0] > -1 && _selectedCellIndex[1] > -1;
@@ -280,6 +290,7 @@ namespace BitBoardCore
 
         private void OnGameOver(int winner)
         {
+            _isGameOver = true;
             if(onGameOver != null)
             {
                 onGameOver(winner);
@@ -713,6 +724,12 @@ namespace BitBoardCore
 
         public void OnMouseDown(int x, int y)
         {
+            // If the game is not active then dont do anything 
+            if(!isGameActive())
+            {
+                return;
+            }
+
             if(IsCellSelected())
             {
                 // If we clicked on the selected sell, deselect it
@@ -789,6 +806,12 @@ namespace BitBoardCore
 
         public void SetMousePosition(int x, int y)
         {
+            // If the game is not active then dont do anything 
+            if (!isGameActive())
+            {
+                return;
+            }
+
             SetHoverCell(x, y);
 
         }

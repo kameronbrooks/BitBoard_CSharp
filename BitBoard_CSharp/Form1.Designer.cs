@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             doubleBufferedPanel1 = new DoubleBufferedPanel();
+            winnerLabel = new Label();
             gameOverLabel = new Label();
             panel1 = new Panel();
             label3 = new Label();
@@ -45,7 +46,7 @@
             player1HexDataLabel = new Label();
             player1BinaryDataLabel = new Label();
             label4 = new Label();
-            winnerLabel = new Label();
+            restartButton = new Button();
             doubleBufferedPanel1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
@@ -62,6 +63,19 @@
             doubleBufferedPanel1.Paint += doubleBufferedPanel1_Paint;
             doubleBufferedPanel1.MouseClick += doubleBufferedPanel1_MouseClick;
             doubleBufferedPanel1.MouseMove += doubleBufferedPanel1_MouseMove;
+            // 
+            // winnerLabel
+            // 
+            winnerLabel.AutoSize = true;
+            winnerLabel.BackColor = Color.Transparent;
+            winnerLabel.Font = new Font("Stencil", 27.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            winnerLabel.ForeColor = SystemColors.ControlLightLight;
+            winnerLabel.Location = new Point(111, 261);
+            winnerLabel.Name = "winnerLabel";
+            winnerLabel.Size = new Size(236, 44);
+            winnerLabel.TabIndex = 9;
+            winnerLabel.Text = "Black Wins";
+            winnerLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // gameOverLabel
             // 
@@ -237,24 +251,22 @@
             label4.TabIndex = 1;
             label4.Text = "Player 1 (Binary)";
             // 
-            // winnerLabel
+            // restartButton
             // 
-            winnerLabel.AutoSize = true;
-            winnerLabel.BackColor = Color.Transparent;
-            winnerLabel.Font = new Font("Stencil", 27.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            winnerLabel.ForeColor = SystemColors.ControlLightLight;
-            winnerLabel.Location = new Point(111, 261);
-            winnerLabel.Name = "winnerLabel";
-            winnerLabel.Size = new Size(236, 44);
-            winnerLabel.TabIndex = 9;
-            winnerLabel.Text = "Black Wins";
-            winnerLabel.TextAlign = ContentAlignment.MiddleCenter;
+            restartButton.Location = new Point(671, 5);
+            restartButton.Name = "restartButton";
+            restartButton.Size = new Size(123, 23);
+            restartButton.TabIndex = 8;
+            restartButton.Text = "Restart Game";
+            restartButton.UseVisualStyleBackColor = true;
+            restartButton.Click += restartButton_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 519);
+            Controls.Add(restartButton);
             Controls.Add(panel2);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -301,5 +313,6 @@
         private Label label3;
         private Label gameOverLabel;
         private Label winnerLabel;
+        private Button restartButton;
     }
 }
