@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             doubleBufferedPanel1 = new DoubleBufferedPanel();
+            gameOverLabel = new Label();
             panel1 = new Panel();
             label3 = new Label();
             hoverBitMaskDataLabel = new Label();
@@ -44,12 +45,16 @@
             player1HexDataLabel = new Label();
             player1BinaryDataLabel = new Label();
             label4 = new Label();
+            winnerLabel = new Label();
+            doubleBufferedPanel1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
             // doubleBufferedPanel1
             // 
+            doubleBufferedPanel1.Controls.Add(winnerLabel);
+            doubleBufferedPanel1.Controls.Add(gameOverLabel);
             doubleBufferedPanel1.Location = new Point(0, 0);
             doubleBufferedPanel1.Name = "doubleBufferedPanel1";
             doubleBufferedPanel1.Size = new Size(480, 480);
@@ -57,6 +62,18 @@
             doubleBufferedPanel1.Paint += doubleBufferedPanel1_Paint;
             doubleBufferedPanel1.MouseClick += doubleBufferedPanel1_MouseClick;
             doubleBufferedPanel1.MouseMove += doubleBufferedPanel1_MouseMove;
+            // 
+            // gameOverLabel
+            // 
+            gameOverLabel.AutoSize = true;
+            gameOverLabel.BackColor = Color.Transparent;
+            gameOverLabel.Font = new Font("Stencil", 36F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            gameOverLabel.ForeColor = SystemColors.ControlLightLight;
+            gameOverLabel.Location = new Point(91, 214);
+            gameOverLabel.Name = "gameOverLabel";
+            gameOverLabel.Size = new Size(284, 57);
+            gameOverLabel.TabIndex = 8;
+            gameOverLabel.Text = "Game Over";
             // 
             // panel1
             // 
@@ -220,6 +237,19 @@
             label4.TabIndex = 1;
             label4.Text = "Player 1 (Binary)";
             // 
+            // winnerLabel
+            // 
+            winnerLabel.AutoSize = true;
+            winnerLabel.BackColor = Color.Transparent;
+            winnerLabel.Font = new Font("Stencil", 27.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            winnerLabel.ForeColor = SystemColors.ControlLightLight;
+            winnerLabel.Location = new Point(111, 261);
+            winnerLabel.Name = "winnerLabel";
+            winnerLabel.Size = new Size(236, 44);
+            winnerLabel.TabIndex = 9;
+            winnerLabel.Text = "Black Wins";
+            winnerLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -241,6 +271,8 @@
             Paint += Form1_Paint;
             MouseDown += Form1_MouseDown;
             MouseMove += Form1_MouseMove;
+            doubleBufferedPanel1.ResumeLayout(false);
+            doubleBufferedPanel1.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
@@ -267,5 +299,7 @@
         private Label label9;
         private Label hoverBitMaskDataLabel;
         private Label label3;
+        private Label gameOverLabel;
+        private Label winnerLabel;
     }
 }

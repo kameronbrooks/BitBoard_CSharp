@@ -281,6 +281,16 @@ namespace BitBoardCore
         }
 
         /// <summary>
+        /// A method to create a bit mask with just a single bit set at the specified position
+        /// </summary>
+        /// <param name="loc"></param>
+        /// <returns></returns>
+        public static uint CreateBitMask(int loc)
+        {
+            return (uint)(1u << loc);
+        }
+
+        /// <summary>
         /// To convert a number to a binary string
         /// </summary>
         /// <param name="val"></param>

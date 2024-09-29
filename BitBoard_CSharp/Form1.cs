@@ -9,6 +9,12 @@ namespace BitBoard_CSharp
         BitBoardCore.BitBoardGame _game;
         int _mouseX;
         int _mouseY;
+
+        Image? _checkerIcon = null;
+        Image? _kingIcon = null;
+        Image? _moveIcon = null;
+        bool _resourcesLoaded = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -17,47 +23,75 @@ namespace BitBoard_CSharp
             this.SetStyle(ControlStyles.UserPaint, true);
             this.UpdateStyles();
 
-            _game = new BitBoardCore.BitBoardGame();
-            _game.onBoardChange = OnBoardUpdate;
-            _game.onTurnChange = OnTurnUpdate;
-            _game.onGameOver = OnGameOver;
-
             LoadResources();
+
+            StartGame();
+
 
             Debug.WriteLine(BitUtility.ClearBit(0xFFF, 13));
             Debug.WriteLine(BitUtility.SetBit(0x0, 13));
+
+            
         }
 
         private void LoadResources()
         {
-            Image checker_icon = null;
-            Image king_icon = null;
-            Image move_icon = null;
 
             using (MemoryStream stream = new MemoryStream(Properties.Resources.checker_icon))
             {
-                checker_icon = Image.FromStream(stream);
+                _checkerIcon = Image.FromStream(stream);
             }
             using (MemoryStream stream = new MemoryStream(Properties.Resources.king))
             {
-                king_icon = Image.FromStream(stream);
+                _kingIcon = Image.FromStream(stream);
             }
             using (MemoryStream stream = new MemoryStream(Properties.Resources.move_icon))
             {
-                move_icon = Image.FromStream(stream);
+                _moveIcon = Image.FromStream(stream);
             }
-
-            _game.SetResources(checker_icon, king_icon, move_icon);
+            _resourcesLoaded = true;
+            
         }
 
         private void OnGameOver(int gameState)
         {
+            gameOverLabel.Visible = true;
+            winnerLabel.Visible = true;
+            if (gameState == BitBoardGame.PLAYER_1)
+                winnerLabel.Text = "Red Wins!";
+            else if (gameState == BitBoardGame.PLAYER_2)
+                winnerLabel.Text = "Black Wins!";
+            else
+            {
+                winnerLabel.Text = "Tie Game!";
+            }
 
+        }
+
+        private void StartGame()
+        {
+            // Load the images if they have not been loaded yet
+            if(!_resourcesLoaded)
+            {
+                LoadResources();
+            }
+
+            // Hide the labels
+            gameOverLabel.Visible = false;
+            winnerLabel.Visible = false;
+
+            _game = new BitBoardGame();
+            _game.onBoardChange = OnBoardUpdate;
+            _game.onTurnChange = OnTurnUpdate;
+            _game.onGameOver = OnGameOver;
+
+            // Set the images used in the game rendering
+            _game.SetResources(_checkerIcon, _kingIcon, _moveIcon);
         }
 
         private void OnTurnUpdate(int turn)
         {
-            turnDataLabel.Text = turn.ToString() + "  (" + ((turn % 2) == 0 ? "Red" : "Black") + ")";
+            turnDataLabel.Text = turn.ToString() + "  (" + ((turn & 1) == 0 ? "Red" : "Black") + ")";
         }
 
         private void OnBoardUpdate(uint player1Board, uint player2Board)

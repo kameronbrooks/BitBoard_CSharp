@@ -159,7 +159,7 @@ namespace BitBoardCore
         {
             // Deselct the cell and clear the potential moves
             SetSelectedCell(-1, -1);
-            _potentialMoveBitMask = 0u;
+            ClearPotential();
 
             // Increment the turn
             ++_currentTurn;
@@ -217,10 +217,6 @@ namespace BitBoardCore
             return true;
         }
 
-        public void CapturePiece(int playerID, int bit)
-        {
-
-        }
 
         public override string ToString()
         {
@@ -232,19 +228,51 @@ namespace BitBoardCore
             return "Board";
         }
 
+        private bool DoesPlayerHaveMoves(int playerID)
+        {
+            // Check all pieces to see if any can move
+            for(int i = 0; i < sizeof(uint)*8; i++)
+            {
+                // If the player does not have a piece here, then continue
+                if (BitUtility.CheckBit(_pieces[playerID], i) == 0u)
+                {
+                    continue;
+                }
+                if(CalculatePotentialMoves(BitUtility.CreateBitMask(i))) {
+                    // Clear any side effects of the calculations
+                    ClearPotential();
+                    return true;
+                }
+            }
+            // Clear any side effects of the calculations
+            ClearPotential();
+            // Return false if none of the pieces could move
+            return false;
+        }
+
         public void UpdateGameState()
         {
             // Check for game over
             if (_pieces[0] == 0u)
             {
                 OnGameOver(PLAYER_2);
+                return;
             }
+
             if (_pieces[1] == 0u)
             {
                 OnGameOver(PLAYER_1);
+                return;
+            }
+
+            if (!DoesPlayerHaveMoves(_currentTurn%2))
+            {
+                OnGameOver((_currentTurn+1) % 2);
+                return;
             }
 
             // Update king status
+            // King any men tha have gotten to the end
             _kingStatusMask |= _pieces[0] & BoardBitStates.INITIAL_PLAYER_1_FINALROW;
             _kingStatusMask |= _pieces[1] & BoardBitStates.INITIAL_PLAYER_2_FINALROW;
 
