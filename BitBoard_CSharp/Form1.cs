@@ -89,6 +89,8 @@ namespace BitBoard_CSharp
             _game.SetResources(_checkerIcon, _kingIcon, _moveIcon);
 
             _game.InitializeBoard();
+
+            asciiDisplay.Text = _game.ToString();
         }
 
         private void OnTurnUpdate(int turn)
@@ -103,6 +105,11 @@ namespace BitBoard_CSharp
 
             player2BinaryDataLabel.Text = BitUtility.ToBinaryString(player2Board);
             player2HexDataLabel.Text = BitUtility.ToHexString(player2Board);
+
+            asciiDisplay.Text = _game.ToString();
+
+            player1ScoreValue.Text = (12 - BitUtility.CountOnes(player2Board)).ToString();
+            player2ScoreValue.Text = (12 - BitUtility.CountOnes(player1Board)).ToString();
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)

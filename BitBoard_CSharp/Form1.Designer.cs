@@ -36,8 +36,8 @@
             hoverBitMaskDataLabel = new Label();
             TurnLabel = new Label();
             turnDataLabel = new Label();
-            label1 = new Label();
-            label2 = new Label();
+            player1ScoreLabel = new Label();
+            player2ScoreLabel = new Label();
             panel2 = new Panel();
             label9 = new Label();
             player2HexDataLabel = new Label();
@@ -47,6 +47,10 @@
             player1BinaryDataLabel = new Label();
             label4 = new Label();
             restartButton = new Button();
+            asciiDisplay = new Label();
+            player2ScoreValue = new Label();
+            player1ScoreValue = new Label();
+            label5 = new Label();
             doubleBufferedPanel1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
@@ -140,23 +144,23 @@
             turnDataLabel.TabIndex = 4;
             turnDataLabel.Text = "Black";
             // 
-            // label1
+            // player1ScoreLabel
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(486, 35);
-            label1.Name = "label1";
-            label1.Size = new Size(83, 15);
-            label1.TabIndex = 5;
-            label1.Text = "Player 1 Score:";
+            player1ScoreLabel.AutoSize = true;
+            player1ScoreLabel.Location = new Point(486, 35);
+            player1ScoreLabel.Name = "player1ScoreLabel";
+            player1ScoreLabel.Size = new Size(83, 15);
+            player1ScoreLabel.TabIndex = 5;
+            player1ScoreLabel.Text = "Player 1 Score:";
             // 
-            // label2
+            // player2ScoreLabel
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(486, 62);
-            label2.Name = "label2";
-            label2.Size = new Size(83, 15);
-            label2.TabIndex = 6;
-            label2.Text = "Player 2 Score:";
+            player2ScoreLabel.AutoSize = true;
+            player2ScoreLabel.Location = new Point(486, 62);
+            player2ScoreLabel.Name = "player2ScoreLabel";
+            player2ScoreLabel.Size = new Size(83, 15);
+            player2ScoreLabel.TabIndex = 6;
+            player2ScoreLabel.Text = "Player 2 Score:";
             // 
             // panel2
             // 
@@ -261,15 +265,56 @@
             restartButton.UseVisualStyleBackColor = true;
             restartButton.Click += restartButton_Click;
             // 
+            // asciiDisplay
+            // 
+            asciiDisplay.AutoSize = true;
+            asciiDisplay.Font = new Font("Cascadia Mono", 7F);
+            asciiDisplay.Location = new Point(485, 120);
+            asciiDisplay.Name = "asciiDisplay";
+            asciiDisplay.Size = new Size(103, 117);
+            asciiDisplay.TabIndex = 9;
+            asciiDisplay.Text = "░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n\r\n";
+            // 
+            // player2ScoreValue
+            // 
+            player2ScoreValue.AutoSize = true;
+            player2ScoreValue.Location = new Point(575, 62);
+            player2ScoreValue.Name = "player2ScoreValue";
+            player2ScoreValue.Size = new Size(13, 15);
+            player2ScoreValue.TabIndex = 10;
+            player2ScoreValue.Text = "0";
+            // 
+            // player1ScoreValue
+            // 
+            player1ScoreValue.AutoSize = true;
+            player1ScoreValue.Location = new Point(575, 35);
+            player1ScoreValue.Name = "player1ScoreValue";
+            player1ScoreValue.Size = new Size(13, 15);
+            player1ScoreValue.TabIndex = 11;
+            player1ScoreValue.Text = "0";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(486, 96);
+            label5.Name = "label5";
+            label5.Size = new Size(35, 15);
+            label5.TabIndex = 12;
+            label5.Text = "Ascii:";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 519);
+            Controls.Add(label5);
+            Controls.Add(player1ScoreValue);
+            Controls.Add(player2ScoreValue);
+            Controls.Add(asciiDisplay);
             Controls.Add(restartButton);
             Controls.Add(panel2);
-            Controls.Add(label2);
-            Controls.Add(label1);
+            Controls.Add(player2ScoreLabel);
+            Controls.Add(player1ScoreLabel);
             Controls.Add(turnDataLabel);
             Controls.Add(TurnLabel);
             Controls.Add(panel1);
@@ -299,8 +344,8 @@
         private Panel panel1;
         private Label TurnLabel;
         private Label turnDataLabel;
-        private Label label1;
-        private Label label2;
+        private Label player1ScoreLabel;
+        private Label player2ScoreLabel;
         private Panel panel2;
         private Label player2HexDataLabel;
         private Label player2BinaryDataLabel;
@@ -314,5 +359,9 @@
         private Label gameOverLabel;
         private Label winnerLabel;
         private Button restartButton;
+        private Label asciiDisplay;
+        private Label player2ScoreValue;
+        private Label player1ScoreValue;
+        private Label label5;
     }
 }

@@ -40,21 +40,24 @@ namespace BitBoardCore
         bool _isGameOver;                                   // Is the game over?
         int _gameWinner;                                    // The winner of the game 0 for PLAYER_1, 1 for PLAYER_2, and -1 for a draw
 
-        Image _checkerIcon;
-        Image _kingIcon;
-        Image _moveIcon;
-        ColorMatrix[] _pieceColorMatrices;
-        ColorMatrix _uiColorMatrix;
+        Image _checkerIcon;                                 // The icon for normal checkers
+        Image _kingIcon;                                    // The icon for a king
+        Image _moveIcon;                                    // The icon that shows potential moves
+        ColorMatrix[] _pieceColorMatrices;                  // Matricies used to store the colors for rendering pieces
+        ColorMatrix _uiColorMatrix;                         // The matrix for the UI color
 
         public delegate void BoardChangeCallback(uint player1, uint player2);
         public BoardChangeCallback? onBoardChange;           // A callback that is called to update UI if the board changes
 
         public delegate void TurnChangeCallback(int onTurnChange);
-        public TurnChangeCallback onTurnChange;
+        public TurnChangeCallback onTurnChange;              // A callback that is called when the turn changes
 
         public delegate void GameOverCallback(int gameState);
-        public GameOverCallback onGameOver;
+        public GameOverCallback onGameOver;                  // A callback that is called when the game is over
 
+        /// <summary>
+        /// Player 1 Bit Board bits
+        /// </summary>
         public uint player1BitBoard
         {
             get
@@ -63,6 +66,9 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Player 2 Bit Board bits
+        /// </summary>
         public uint player2BitBoard
         {
             get
@@ -71,6 +77,9 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// The bit mask that represents the current cursor position
+        /// </summary>
         public uint hoverBitMask
         {
             get
@@ -135,6 +144,9 @@ namespace BitBoardCore
             
         }
 
+        /// <summary>
+        /// Initialize the resources that the game needs for rendering
+        /// </summary>
         private void InitializeResources()
         {
             _pieceColorMatrices[0] = RenderingUtility.GetColorMatrix(Color.FromArgb(255, 255, 50, 50));
@@ -143,6 +155,12 @@ namespace BitBoardCore
             _uiColorMatrix = RenderingUtility.GetColorMatrix(Color.GreenYellow);
         }
 
+        /// <summary>
+        /// Add the image resources and initialize the other rendering resources
+        /// </summary>
+        /// <param name="checkerIcon"></param>
+        /// <param name="kingIcon"></param>
+        /// <param name="moveIcon"></param>
         public void SetResources(Image checkerIcon, Image kingIcon, Image moveIcon)
         {
             _checkerIcon = checkerIcon;
@@ -175,14 +193,6 @@ namespace BitBoardCore
             ++_currentTurn;
 
             UpdateGameState();
-
-            if(_isGameOver)
-            {
-                if(onGameOver != null)
-                {
-                    onGameOver(_gameWinner);
-                }
-            }
 
             if (onTurnChange != null)
             {
@@ -222,20 +232,75 @@ namespace BitBoardCore
             IncrementTurn();
         }
 
-        public bool IsLegalMove(int playerID, int fromBit, int toBit)
-        {
-            return true;
-        }
-
 
         public override string ToString()
         {
-            return ToString("b");
+            return ToString("ascii");
         }
 
+        /// <summary>
+        /// Use the options, "b" for binary, "hex" for hex, or "ascii" for ascii
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
         public string ToString(string format)
         {
-            return "Board";
+            if(format=="b")
+            {
+                string player1 = BitUtility.ToBinaryString(_pieces[0]);
+                string player2 = BitUtility.ToBinaryString(_pieces[0]);
+                string kingData = BitUtility.ToBinaryString(_kingStatusMask);
+
+                return "Player 1\n" + player1 + "\nPlayer 2\n" + player2 + "\nKingStatus\n" + kingData;
+            }
+            else if(format=="hex")
+            {
+                string player1 = BitUtility.ToHexString(_pieces[0]);
+                string player2 = BitUtility.ToHexString(_pieces[0]);
+                string kingData = BitUtility.ToHexString(_kingStatusMask);
+
+                return "Player 1\n" + player1 + "\nPlayer 2\n" + player2 + "\nKingStatus\n" + kingData;
+            }
+            else
+            {
+                // Print the ascii representation of the game
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+                // ░░▉▉░░▉▉░░▉▉░░▉▉
+                // ▉▉░░▉▉░░▉▉░░▉▉░░
+
+                const string DARK_CELL = "▉▉";
+                const string LIGHT_CELL = "░░";
+
+                string output = "";
+                for(int y= (BOARD_ROWS)-1; y>=0;y--)
+                {
+                    for (int x = 0; x < BOARD_COLUMNS/2; x++)
+                    {
+                        uint mask = BitUtility.CreateBitMask((int)x + (int)y * (BOARD_COLUMNS/2));
+
+                        string pieceChar = BitUtility.BitMatch(mask, _pieces[0]) ? "R" : BitUtility.BitMatch(mask, _pieces[1]) ? "B" : " ";
+                        string kingChar = BitUtility.BitMatch(mask, _kingStatusMask) ? "K" : " ";
+
+                        // Check to see if we are on an even row or and odd one
+                        if (BitUtility.BitMatch(mask, BoardBitStates.EVEN_ROWS))
+                        {
+                            output += pieceChar + kingChar + DARK_CELL;
+                        }
+                        else
+                        {
+                            output += DARK_CELL + pieceChar + kingChar;
+                        }
+                    }
+                    output += "\n";
+                }
+
+                return output;
+            }
         }
 
         private bool DoesPlayerHaveMoves(int playerID)

@@ -165,6 +165,82 @@ namespace BitBoardCore
             return SetBit(ClearBit(val, from), to);
         }
 
+        /// <summary>
+        /// Count the 1s in the binary number
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int CountOnes(byte b)
+        {
+            int count = 0;
+            for (int i = 0; i < sizeof(byte)*8; i++)
+            {
+                if (((b >> i) & 1) == 1)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Count the 1s in the binary number
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int CountOnes(ushort b)
+        {
+            int count = 0;
+            for (int i = 0; i < sizeof(ushort) * 8; i++)
+            {
+                if (((b >> i) & 1) == 1)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Count the 1s in the binary number
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int CountOnes(uint b)
+        {
+            int count = 0;
+            for (int i = 0; i < sizeof(uint) * 8; i++)
+            {
+                if (((b >> i) & 1) == 1)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Count the 1s in the binary number
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int CountOnes(ulong b)
+        {
+            int count = 0;
+            for (int i = 0; i < sizeof(ulong) * 8; i++)
+            {
+                if (((b >> i) & 1) == 1)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         // Shift Left
         public static byte ShiftLeft(byte val, int pos)
         {
