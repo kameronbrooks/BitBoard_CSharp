@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            doubleBufferedPanel1 = new DoubleBufferedPanel();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             winnerLabel = new Label();
             gameOverLabel = new Label();
             panel1 = new Panel();
@@ -51,22 +51,10 @@
             player2ScoreValue = new Label();
             player1ScoreValue = new Label();
             label5 = new Label();
-            doubleBufferedPanel1.SuspendLayout();
+            doubleBufferedPanel1 = new DoubleBufferedPanel();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
-            // 
-            // doubleBufferedPanel1
-            // 
-            doubleBufferedPanel1.Controls.Add(winnerLabel);
-            doubleBufferedPanel1.Controls.Add(gameOverLabel);
-            doubleBufferedPanel1.Location = new Point(0, 0);
-            doubleBufferedPanel1.Name = "doubleBufferedPanel1";
-            doubleBufferedPanel1.Size = new Size(480, 480);
-            doubleBufferedPanel1.TabIndex = 1;
-            doubleBufferedPanel1.Paint += doubleBufferedPanel1_Paint;
-            doubleBufferedPanel1.MouseClick += doubleBufferedPanel1_MouseClick;
-            doubleBufferedPanel1.MouseMove += doubleBufferedPanel1_MouseMove;
             // 
             // winnerLabel
             // 
@@ -274,6 +262,7 @@
             asciiDisplay.Size = new Size(103, 117);
             asciiDisplay.TabIndex = 9;
             asciiDisplay.Text = "░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n░░▉▉░░▉▉░░▉▉░░▉▉\r\n▉▉░░▉▉░░▉▉░░▉▉░░\r\n\r\n";
+            asciiDisplay.Click += asciiDisplay_Click;
             // 
             // player2ScoreValue
             // 
@@ -302,11 +291,22 @@
             label5.TabIndex = 12;
             label5.Text = "Ascii:";
             // 
+            // doubleBufferedPanel1
+            // 
+            doubleBufferedPanel1.Location = new Point(5, 5);
+            doubleBufferedPanel1.Name = "doubleBufferedPanel1";
+            doubleBufferedPanel1.Size = new Size(479, 470);
+            doubleBufferedPanel1.TabIndex = 13;
+            doubleBufferedPanel1.Paint += doubleBufferedPanel1_Paint;
+            doubleBufferedPanel1.MouseClick += doubleBufferedPanel1_MouseClick;
+            doubleBufferedPanel1.MouseMove += doubleBufferedPanel1_MouseMove;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 519);
+            Controls.Add(doubleBufferedPanel1);
             Controls.Add(label5);
             Controls.Add(player1ScoreValue);
             Controls.Add(player2ScoreValue);
@@ -318,18 +318,15 @@
             Controls.Add(turnDataLabel);
             Controls.Add(TurnLabel);
             Controls.Add(panel1);
-            Controls.Add(doubleBufferedPanel1);
             DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             SizeGripStyle = SizeGripStyle.Hide;
             Text = "BitBoard";
             Load += Form1_Load;
-            Paint += Form1_Paint;
             MouseDown += Form1_MouseDown;
             MouseMove += Form1_MouseMove;
-            doubleBufferedPanel1.ResumeLayout(false);
-            doubleBufferedPanel1.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);

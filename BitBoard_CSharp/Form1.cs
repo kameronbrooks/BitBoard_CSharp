@@ -23,14 +23,7 @@ namespace BitBoard_CSharp
             this.SetStyle(ControlStyles.UserPaint, true);
             this.UpdateStyles();
 
-            LoadResources();
-
-            StartGame();
-
-
-            Debug.WriteLine(BitUtility.ClearBit(0xFFF, 13));
-            Debug.WriteLine(BitUtility.SetBit(0x0, 13));
-
+            
 
         }
 
@@ -112,14 +105,10 @@ namespace BitBoard_CSharp
             player2ScoreValue.Text = (12 - BitUtility.CountOnes(player1Board)).ToString();
         }
 
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            LoadResources();
+            StartGame();
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -157,6 +146,11 @@ namespace BitBoard_CSharp
         private void restartButton_Click(object sender, EventArgs e)
         {
             StartGame();
+        }
+
+        private void asciiDisplay_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
