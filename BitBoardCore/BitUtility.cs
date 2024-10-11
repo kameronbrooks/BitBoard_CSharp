@@ -93,22 +93,45 @@ namespace BitBoardCore
             return (ulong)(val ^ (1ul << pos));
         }
 
-        // Check a bit at the specified location
+        /// <summary>
+        /// Check a bit at the specified location
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public static uint CheckBit(uint val, int pos)
         {
             return (val >> pos) & 1u;
         }
 
+        /// <summary>
+        /// Check a bit at the specified location
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public static ushort CheckBit(ushort val, int pos)
         {
             return (ushort)((val >> pos) & (ushort)1);
         }
 
+        /// <summary>
+        /// Check a bit at the specified location
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public static byte CheckBit(byte val, int pos)
         {
             return (byte)((val >> pos) & (byte)1);
         }
 
+        /// <summary>
+        /// Check a bit at the specified location
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         public static ulong CheckBit(ulong val, int pos)
         {
             return (ulong)((val >> pos) & 1ul);
@@ -364,6 +387,94 @@ namespace BitBoardCore
         public static uint CreateBitMask(int loc)
         {
             return (uint)(1u << loc);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a or b (OR operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static byte CombineBits(byte a, byte b)
+        {
+            return (byte)(a | b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a or b (OR operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static ushort CombineBits(ushort a, ushort b)
+        {
+            return (ushort)(a | b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a or b (OR operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static uint CombineBits(uint a, uint b)
+        {
+            return (uint)(a | b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a or b (OR operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static ulong CombineBits(ulong a, ulong b)
+        {
+            return (ulong)(a | b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a and b (AND operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static byte IntersectBits(byte a, byte b)
+        {
+            return (byte)(a & b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a and b (AND operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static ushort IntersectBits(ushort a, ushort b)
+        {
+            return (ushort)(a & b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a and b (AND operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static uint IntersectBits(uint a, uint b)
+        {
+            return (uint)(a & b);
+        }
+
+        /// <summary>
+        /// A method to get the bits that are in both a and b (AND operator)
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static ulong IntersectBits(ulong a, ulong b)
+        {
+            return (ulong)(a & b);
         }
 
         /// <summary>
