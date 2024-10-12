@@ -54,32 +54,33 @@
             doubleBufferedPanel1 = new DoubleBufferedPanel();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
+            doubleBufferedPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // winnerLabel
             // 
-            winnerLabel.AutoSize = true;
+            winnerLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             winnerLabel.BackColor = Color.Transparent;
             winnerLabel.Font = new Font("Stencil", 27.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             winnerLabel.ForeColor = SystemColors.ControlLightLight;
-            winnerLabel.Location = new Point(111, 261);
+            winnerLabel.Location = new Point(0, 280);
             winnerLabel.Name = "winnerLabel";
-            winnerLabel.Size = new Size(236, 44);
+            winnerLabel.Size = new Size(480, 44);
             winnerLabel.TabIndex = 9;
             winnerLabel.Text = "Black Wins";
             winnerLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // gameOverLabel
             // 
-            gameOverLabel.AutoSize = true;
             gameOverLabel.BackColor = Color.Transparent;
             gameOverLabel.Font = new Font("Stencil", 36F, FontStyle.Regular, GraphicsUnit.Point, 0);
             gameOverLabel.ForeColor = SystemColors.ControlLightLight;
-            gameOverLabel.Location = new Point(91, 214);
+            gameOverLabel.Location = new Point(0, 214);
             gameOverLabel.Name = "gameOverLabel";
-            gameOverLabel.Size = new Size(284, 57);
+            gameOverLabel.Size = new Size(480, 57);
             gameOverLabel.TabIndex = 8;
             gameOverLabel.Text = "Game Over";
+            gameOverLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // panel1
             // 
@@ -293,6 +294,8 @@
             // 
             // doubleBufferedPanel1
             // 
+            doubleBufferedPanel1.Controls.Add(winnerLabel);
+            doubleBufferedPanel1.Controls.Add(gameOverLabel);
             doubleBufferedPanel1.Location = new Point(5, 5);
             doubleBufferedPanel1.Name = "doubleBufferedPanel1";
             doubleBufferedPanel1.Size = new Size(479, 470);
@@ -306,7 +309,6 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 519);
-            Controls.Add(doubleBufferedPanel1);
             Controls.Add(label5);
             Controls.Add(player1ScoreValue);
             Controls.Add(player2ScoreValue);
@@ -318,6 +320,7 @@
             Controls.Add(turnDataLabel);
             Controls.Add(TurnLabel);
             Controls.Add(panel1);
+            Controls.Add(doubleBufferedPanel1);
             DoubleBuffered = true;
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -331,6 +334,7 @@
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            doubleBufferedPanel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }

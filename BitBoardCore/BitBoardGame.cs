@@ -581,6 +581,12 @@ namespace BitBoardCore
             RenderPieces(graphics);
             RenderUI(graphics);
 
+            if (_isGameOver)
+            {
+                Brush darkBrush = new SolidBrush(Color.FromArgb(100,0,0,0));
+                graphics.FillRectangle(darkBrush, new Rectangle() {X=0,Y=0, Width=CELL_SIZE*8, Height=CELL_SIZE*8});
+            }
+
         }
         
         protected void RenderBoard(System.Drawing.Graphics graphics)
