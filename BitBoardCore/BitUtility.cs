@@ -72,26 +72,6 @@ namespace BitBoardCore
             return (ulong)(val & ~(1ul << pos));
         }
 
-        // Toggle the bit at the specified position
-        public static byte ToggleBit(byte val, int pos)
-        {
-            return (byte)(val ^ ((byte)1 << pos));
-        }
-
-        public static ushort ToggleBit(ushort val, int pos)
-        {
-            return (ushort)(val ^ ((ushort)1 << pos));
-        }
-
-        public static uint ToggleBit(uint val, int pos)
-        {
-            return (val ^ (1u << pos));
-        }
-
-        public static ulong ToggleBit(ulong val, int pos)
-        {
-            return (ulong)(val ^ (1ul << pos));
-        }
 
         /// <summary>
         /// Check a bit at the specified location
@@ -307,7 +287,7 @@ namespace BitBoardCore
         }
 
         /// <summary>
-        /// Get the index of the first bit in the bitMask
+        /// Get the index of the first 1 bit in the bitMask
         /// </summary>
         /// <param name="bitMask"></param>
         /// <returns></returns>

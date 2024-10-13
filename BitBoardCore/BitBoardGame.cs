@@ -174,7 +174,7 @@ namespace BitBoardCore
             IncrementTurn();
         }
 
-        protected void IncrementTurn()
+        private void IncrementTurn()
         {
             // Deselct the cell and clear the potential moves
             SetSelectedCell(-1, -1);
@@ -378,6 +378,11 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Calculate the potential moves for the piece at the given bit position in the bit mask
+        /// </summary>
+        /// <param name="selectedBitMask"></param>
+        /// <returns></returns>
         private bool CalculatePotentialMoves(uint selectedBitMask)
         {
             // Generate the potential moves based on the selected piece
@@ -499,6 +504,16 @@ namespace BitBoardCore
 
         }
 
+        /// <summary>
+        /// Called by the Calculate potential moves method to specifically handle the jumps. This is its own function because it needs to run recursively.
+        /// </summary>
+        /// <param name="teamIndex"></param>
+        /// <param name="positionMask"></param>
+        /// <param name="myPieceMask"></param>
+        /// <param name="otherPieceMask"></param>
+        /// <param name="isKing"></param>
+        /// <param name="captureMask"></param>
+        /// <returns></returns>
         private uint TestJumps(int teamIndex, uint positionMask, uint myPieceMask, uint otherPieceMask, bool isKing, uint captureMask)
         {
             uint allPiecesMask = BitUtility.CombineBits(myPieceMask, otherPieceMask);
@@ -562,6 +577,9 @@ namespace BitBoardCore
             return branchMask;
         }
 
+        /// <summary>
+        /// Update the external UI with the onBoardChange callback
+        /// </summary>
         public void UpdateUI()
         {
             // Call the callback to update any UI listeners
@@ -571,6 +589,10 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Render the game with the provided graphics interface
+        /// </summary>
+        /// <param name="graphics"></param>
         public void Render(System.Drawing.Graphics graphics)
         {
             // Clear background
@@ -589,7 +611,11 @@ namespace BitBoardCore
 
         }
         
-        protected void RenderBoard(System.Drawing.Graphics graphics)
+        /// <summary>
+        /// Render the board representation on screen
+        /// </summary>
+        /// <param name="graphics"></param>
+        private void RenderBoard(System.Drawing.Graphics graphics)
         {
             Brush darkBrush = new SolidBrush(Color.Brown);
             Brush lightBrush = new SolidBrush(Color.Tan);
@@ -619,7 +645,7 @@ namespace BitBoardCore
         /// <param name="cy"></param>
         /// <param name="isSelected"></param>
         /// <param name="isKing"></param>
-        protected void RenderPiece(System.Drawing.Graphics graphics, ColorMatrix color, int cx, int cy, bool isSelected, bool isKing)
+        private void RenderPiece(System.Drawing.Graphics graphics, ColorMatrix color, int cx, int cy, bool isSelected, bool isKing)
         {
             int size = (int)(CELL_SIZE * 0.75f);
             Rectangle rect = new Rectangle() { X = CELL_SIZE * cx + size / 5, Y = (CELL_SIZE * 7) - (CELL_SIZE * cy) + size / 5, Height = size, Width = size };
@@ -646,7 +672,7 @@ namespace BitBoardCore
         /// Render all the pieces on the board
         /// </summary>
         /// <param name="graphics"></param>
-        protected void RenderPieces(System.Drawing.Graphics graphics)
+        private void RenderPieces(System.Drawing.Graphics graphics)
         {
             for(int i = 0; i < sizeof(uint)*8; i++)
             {
@@ -675,7 +701,7 @@ namespace BitBoardCore
         /// Render the UI elements
         /// </summary>
         /// <param name="graphics"></param>
-        protected void RenderUI(System.Drawing.Graphics graphics)
+        private void RenderUI(System.Drawing.Graphics graphics)
         {
             
             // Draw the potential moves
@@ -706,6 +732,11 @@ namespace BitBoardCore
             }
         }
 
+        /// <summary>
+        /// Handle a mouse down even
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void OnMouseDown(int x, int y)
         {
             // If the game is not active then dont do anything 
@@ -755,7 +786,7 @@ namespace BitBoardCore
         }
 
         /// <summary>
-        /// Sents the selected cell position
+        /// Sets the selected cell position
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -771,7 +802,7 @@ namespace BitBoardCore
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void SetHoverCell(int x, int y)
+        private void SetHoverCell(int x, int y)
         {
             _hoverCellIndex[0] = x / CELL_SIZE;
             _hoverCellIndex[1] = 7 - (y / CELL_SIZE);
@@ -788,6 +819,11 @@ namespace BitBoardCore
             _hoverBitMask = CreateMaskFromBoardIndex(_hoverCellIndex[0], _hoverCellIndex[1]);
         }
 
+        /// <summary>
+        /// Handle a new x,y mouse position from the window
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void SetMousePosition(int x, int y)
         {
             // If the game is not active then dont do anything 
@@ -800,6 +836,10 @@ namespace BitBoardCore
 
         }
 
+        /// <summary>
+        /// Returns true if the mouse is hovering over the board
+        /// </summary>
+        /// <returns></returns>
         private bool IsHoverCellValid()
         {
             return (_hoverCellIndex[0] > -1) && (_hoverCellIndex[1] > -1);

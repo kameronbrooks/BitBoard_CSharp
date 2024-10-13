@@ -10,6 +10,11 @@ namespace BitBoardCore
 {
     public static class RenderingUtility
     {
+        /// <summary>
+        /// Create a color matrix from a color
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public static ColorMatrix GetColorMatrix(Color color)
         {
             return new ColorMatrix([
@@ -21,6 +26,13 @@ namespace BitBoardCore
             ]);
         }
 
+        /// <summary>
+        /// Render a bitmap image to the screen with a specified color tint
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="img"></param>
+        /// <param name="rect"></param>
+        /// <param name="colorMatrix"></param>
         public static void RenderImage(Graphics g, Image img, Rectangle rect, ColorMatrix colorMatrix)
         {
             // Create ImageAttributes and set the ColorMatrix
