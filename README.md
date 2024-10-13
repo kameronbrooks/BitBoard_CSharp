@@ -11,5 +11,13 @@ I was given the task of using individual bits for representing pieces on a check
 
 https://github.com/kameronbrooks/BitBoard_CSharp/blob/master/Bitboard%20Paper.pdf
 
+See the excel file for more information about the classes and their methods
+
+https://github.com/kameronbrooks/BitBoard_CSharp/blob/master/Project%20Class%20Descriptions.xlsx
+
+The project github repository is located at 
+
+https://github.com/kameronbrooks/BitBoard_CSharp
+
 Regards,
 Kameron
