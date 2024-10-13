@@ -19,5 +19,7 @@ The project github repository is located at
 
 https://github.com/kameronbrooks/BitBoard_CSharp
 
+The core game logic is located in the BitBoardCore project and the Windows Forms app is in the BitBoard_CSharp project
+
 Regards,
 Kameron
